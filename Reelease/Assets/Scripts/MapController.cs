@@ -53,6 +53,7 @@ public class MapController : MonoBehaviour
     public int heightMultiplicator = 2;
 
     public int riverCount = 1;
+    public float fillingCapacity;
     public HeightInterval riverStartHeightInterval;
     public bool showLocalMin = false;
     public bool showPassages = false;
@@ -69,18 +70,9 @@ public class MapController : MonoBehaviour
         var additionalPoints = new Dictionary<Color, Collection<Point>>();
 
         if (riverCount > 0) {
+            ErosionAlg.FillingCapacity = fillingCapacity;
             var riversList = ErosionAlg.GetRivers(noiseMap, riverCount, riverStartHeightInterval);
-            foreach (var river in riversList)
-            {
-                if (!additionalPoints.ContainsKey(Color.blue))
-                {
-                    additionalPoints.Add(Color.blue, river);
-                }
-                else 
-                {
-
-                } 
-            }
+            additionalPoints.Add(Color.blue, riversList);
         }
 
         if (showLocalMin)
@@ -104,23 +96,16 @@ public class MapController : MonoBehaviour
 
     private void SetHeightBasedOnScreenRatio()
     {
+        Debug.Log("Sys h: " + Display.main.systemHeight + " sys w: " + Display.main.systemWidth);
         SCREEN_RATIO = (float)Display.main.systemHeight / (float)Display.main.systemWidth;
-        mapHeight = CalculateHeight(mapWidth);
+        mapHeight = (int)Mathf.Ceil(mapWidth * SCREEN_RATIO);
         screenHeight = (int)Mathf.Ceil(screenWidth * SCREEN_RATIO);
-    }
-
-    /// <summary>
-    /// We need a height calculated accordingly to our phone screen.
-    /// </summary>
-    private int CalculateHeight(int width)
-    {
-        return (int)Mathf.Ceil(mapWidth * SCREEN_RATIO);
     }
 
     private void OnValidate()
     {
         if (mapWidth < 1) mapWidth = 1;
-        if (mapWidth > 500) mapWidth = 500;
+        if (mapWidth > 1000) mapWidth = 1000;
         if (octaves > 20) octaves = 20;
         if (noiseScale > 100) noiseScale = 100;
         if (persistance < 0.1f) persistance = 0.1f;

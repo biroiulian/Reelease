@@ -11,7 +11,7 @@ public class PluginInit : MonoBehaviour
     void Start()
     {
         Debug.Log("Started in script PluginInit.");
-        InitializePlugin("com.reelease.testlibrary.PluginInstance");
+        // InitializePlugin("com.reelease.testlibrary.PluginInstance");
     }
 
     private void InitializePlugin(string pluginName)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using static MapController;
 
@@ -9,9 +10,9 @@ public static class ErosionAlg
 {
     public static float RiverStartMinHeight = 0.8f, RiverStartMaxHeight = 0.9f;
     public static float RiverDepth = 0.2f;
-    public static float FillingCapacity = 0.1f;
+    public static float FillingCapacity = 0.2f;
 
-    public static Collection<Collection<Point>> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval)
+    public static Collection<Point> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval)
     {
         if (riversCount == 0) { return null; }
 
@@ -24,7 +25,7 @@ public static class ErosionAlg
         // We will make the given number of rivers if the number of starting points allow it.
         // If not, then we make as many rivers as we can.
         var startPointsCount = startPoints.Count;
-        var riversList = new Collection<Collection<Point>>();
+        var riversList = new Collection<Point>();
         if (startPointsCount > 0)
         {
 
@@ -37,14 +38,13 @@ public static class ErosionAlg
                 // I'm curious if I write the below 3 lines in a single line, would it have the same effect?
                 Collection<Point> riverPoints = new Collection<Point>();
                 riverPoints = findRiverPath(noiseMap, chosenPoint, riverPoints);
-                riversList.Add(riverPoints);
+                riversList.AddRange(riverPoints);
             }
         }
-
+        
         return riversList;
 
     }
-
 
     private static Collection<Point> findRiverPath(float[,] noiseMap, Point currentPoint, Collection<Point> traveled)
     {
@@ -68,25 +68,74 @@ public static class ErosionAlg
         }
     }
 
-    // Only fill the points which would flow towards the same point. If you meet a point that flows towards
-    // another point, then stop at that height.
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="noiseMap"></param>
+    /// <param name="currentPoint"> The point to check.</param>
+    /// <param name="lakeBottom"> The point to flow towards.</param>
+    /// <returns>
+    /// <see cref="true"/> if the <see cref="tryingPoint"/> flows towards <see cref="lakeBottom"/>.
+    /// <see cref="false"/> otherwise.
+    /// </returns>
+    private static bool PointFlowsTowards(float[,] noiseMap, Point currentPoint, Point lakeBottom)
+    {
+        if (currentPoint.x == lakeBottom.x && currentPoint.y == lakeBottom.y) 
+        {
+            Debug.Log("Fill started.");
+            return true;
+        }
 
-    // Breath first search from the end of the river.
+        var traveled = new Collection<Point>();
+        while (true)
+        {
+            var nextPoint = getLowestNeighbour(noiseMap, currentPoint);
+            // If the lowest neighbour is the lake bottom, its clear it flows there.
+            if (nextPoint.x == lakeBottom.x && nextPoint.y == lakeBottom.y) 
+            {
+                return true;
+            }
+            // If the lowest neighbour is himself, there it is the bottom of a lake.
+            if (nextPoint.x == currentPoint.x && nextPoint.y == currentPoint.y)
+            {
+
+                if (traveled.Count == 0) return true;
+
+                if (traveled.Last().x == lakeBottom.x && traveled.Last().y == lakeBottom.y)
+                {
+                    Debug.Log("It belongs to this lake bottom.");
+                    return true;
+                }
+                else
+                {
+                    Debug.Log("It doesn't belong.");
+                    return false;
+                }
+            }
+            else
+            {
+                traveled.Add(currentPoint);
+            }
+            currentPoint = nextPoint;
+        }
+    }
+
     private static Collection<Point> fill(float[,] noiseMap, Point point, float fillingCapacity, Collection<Point> traveled)
     {
+        var possibleLeakingPoints = new Collection<Point>();
         var toFillPoints = new Queue<Point>();
         toFillPoints.Enqueue(point);
 
         int pointsFilled = 0;
 
-        while(toFillPoints.Count > 0)
+        while (toFillPoints.Count > 0)
         {
             var nextPoint = toFillPoints.Dequeue();
             if (!traveled.Contains(nextPoint))
             {
-                traveled.Add(nextPoint);
-                var fittingPoints = getUntraveledNeighboursLowerThan(noiseMap, nextPoint, fillingCapacity, traveled);
-                
+                var fittingPoints = getFittingNeighbours(noiseMap, nextPoint, point, fillingCapacity, traveled);
+                possibleLeakingPoints.AddRange(getUnfittingNeighboursForFill(noiseMap, nextPoint, point, fillingCapacity, traveled));
+
                 foreach (var toEnqueuePoint in fittingPoints)
                 {
                     // Add point to the river points collection.
@@ -94,16 +143,68 @@ public static class ErosionAlg
                     pointsFilled++;
                 }
 
+                traveled.Add(nextPoint);
             }
         }
 
         Debug.Log("Filled " + pointsFilled + " points.");
+
+        if (possibleLeakingPoints.Count > 0)
+        {
+            // Get the lowest point
+            var lowestHeight = float.MaxValue;
+            var lowestPoint = new Point();
+            foreach(Point p in possibleLeakingPoints)
+            {
+                if (noiseMap[p.x, p.y] < lowestHeight) 
+                {
+                    lowestPoint = p;
+                }
+            }
+            return findRiverPath(noiseMap, lowestPoint, traveled);
+        }
+
         return traveled;
 
     }
 
-    private static Collection<Point> getUntraveledNeighboursLowerThan(float[,] noiseMap, Point point, float fillingCapacity, Collection<Point> traveled)
+    private static IEnumerable<Point> getUnfittingNeighboursForFill(float[,] noiseMap, Point point, Point lakeBottom, float fillingCapacity, Collection<Point> traveled)
     {
+        var unfittingNeighbours = new Collection<Point>();
+
+        var width = noiseMap.GetLength(0) - 1;
+        var height = noiseMap.GetLength(1) - 1;
+
+        for (int x = Mathf.Max(point.x - 1, 0); x <= Mathf.Min(point.x + 1, width); x++)
+        {
+            for (int y = Mathf.Max(point.y - 1, 0); y <= Mathf.Min(point.y + 1, height); y++)
+            {
+                if (point.x == x && point.y == y) continue;
+                var tryPoint = new Point(x, y);
+                if (!traveled.Contains(tryPoint) &&
+                    noiseMap[x, y] <= fillingCapacity &&
+                    !PointFlowsTowards(noiseMap, tryPoint, lakeBottom)
+                    )
+                    unfittingNeighbours.Add(tryPoint);
+            }
+        }
+        return unfittingNeighbours;
+    }
+
+    /// <summary>
+    /// Returns the neighbours of this point that:
+    /// 1. Have a height lower than <see cref="fillingCapacity"/>
+    /// 2. When applied the river flowing alghoritm, the final point
+    /// towards which they flow to, is the same as <see cref="lakeBottom"/>
+    /// </summary>
+    private static Collection<Point> getFittingNeighbours(float[,] noiseMap, Point point, Point lakeBottom, float fillingCapacity, Collection<Point> traveled)
+    {
+        if (fillingCapacity <= noiseMap[lakeBottom.x, lakeBottom.y])
+        {
+            Debug.LogException(new Exception("Invalid value for filling capacity: " + 
+                fillingCapacity + " when the bottom of the lake is: " + noiseMap[lakeBottom.x, lakeBottom.y]));
+        }
+
         var fittingNeighbours = new Collection<Point>();
 
         var width = noiseMap.GetLength(0) - 1;
@@ -113,21 +214,16 @@ public static class ErosionAlg
         {
             for (int y = Mathf.Max(point.y - 1, 0); y <= Mathf.Min(point.y + 1, height); y++)
             {
-                if (point.x==x && point.y ==y) continue;
-                if (!traveled.Contains(new Point(x, y)) && noiseMap[x, y] < fillingCapacity) 
-                    fittingNeighbours.Add(new Point(x, y));
+                if (point.x==x && point.y == y) continue;
+                var tryPoint = new Point(x, y);
+                if (!traveled.Contains(tryPoint) && 
+                    noiseMap[x, y] <= fillingCapacity &&
+                    PointFlowsTowards(noiseMap, tryPoint, lakeBottom)
+                    ) 
+                    fittingNeighbours.Add(tryPoint);
             }
         }
         return fittingNeighbours;
-    }
-
-    // Does it have a neighbour which is smaller than him?
-    // If so, then it can leak through there.
-    private static bool isLeaking(float[,] noiseMap, Point currentPoint)
-    {
-        var foundPoint = getLowestNeighbour(noiseMap, currentPoint);
-        if(foundPoint.x == currentPoint.x && foundPoint.y == currentPoint.y) { return true; }
-        else { return false; }
     }
 
     // Returns the point with the lowest height from: 
