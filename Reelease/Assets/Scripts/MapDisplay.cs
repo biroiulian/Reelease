@@ -72,7 +72,7 @@ public class MapDisplay : MonoBehaviour
 
         // The part that handles scaling. We need this to keep our texture inside the screen.
         var xRenderScale = textureRender.transform.localScale.x;
-        textureRender.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale * MapController.SCREEN_RATIO);
+        textureRender.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale);
     }
 
     public void Draw2D(Texture2D texture)
@@ -81,7 +81,7 @@ public class MapDisplay : MonoBehaviour
 
         // The part that handles scaling. We need this to keep our texture inside the screen.
         var xRenderScale = textureRender.transform.localScale.x;
-        textureRender.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale * MapController.SCREEN_RATIO);
+        textureRender.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale);
     }
 
     public void Draw3D(MeshData meshData, Texture2D texture)
@@ -91,7 +91,7 @@ public class MapDisplay : MonoBehaviour
 
         // The part that handles scaling. We need this to keep our mesh inside the screen.
         var xRenderScale = meshRenderer.transform.localScale.x;
-        meshRenderer.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale * MapController.SCREEN_RATIO);
+        meshRenderer.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale);
 
         // Draw2D(texture);
     }

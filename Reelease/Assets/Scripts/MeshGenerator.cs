@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public static class MeshGenerator
 {
@@ -9,17 +10,19 @@ public static class MeshGenerator
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
 
-        float widthDistance = fixedWidth/width;
-        float heightDistance = fixedHeight/height;
-
+        float widthDistance = fixedWidth/(width-1);
+        float heightDistance = fixedHeight/(height-1);
+    
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
+        Debug.Log("width mesh: " + width+ " height mesh " + height);
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-
+                if(x * widthDistance == fixedWidth) { Debug.Log("It is w."); }
+                if (y * heightDistance == fixedHeight) { Debug.Log("It is h."); }
                 meshData.vertices[vertexIndex] = new Vector3(topLeftX + x * widthDistance, heightMap[x, y]*heightMultiplicator+ distanceY, topLeftZ - y*heightDistance);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
@@ -68,6 +71,8 @@ public class MeshData
         mesh.triangles = triangles;
         mesh.uv = uvs;
         mesh.RecalculateNormals();
+
+        Debug.Log("Mesh: " + mesh.vertices.Count() + " tri: " + mesh.triangles.Count());
         return mesh;
     }
 
