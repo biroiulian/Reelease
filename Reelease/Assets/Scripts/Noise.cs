@@ -6,11 +6,12 @@ using Vector2 = UnityEngine.Vector2;
 using System.Drawing;
 using System.Linq;
 using Random = UnityEngine.Random;
+using System.Diagnostics.Tracing;
 
 public static class Noise
 {
     private static Point[] falloffPoints = new Point[5];
-    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, NoiseType noiseType , float domainWarpStrength, float Xwarp, float Ywarp, float falloffRadius, bool resetFalloff, int terracesEasing, bool haveTerraces = false, bool haveFalloff = false)
+    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, NoiseType noiseType , float domainWarpStrength, float Xwarp, float Ywarp, float falloffRadius, bool resetFalloff, int terracesEasing, int noDroplets, bool haveTerraces = false, bool haveFalloff = false, bool haveHydraErosion = false)
     {
         if (noiseType == NoiseType.Falloff) return GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
 
@@ -50,8 +51,8 @@ public static class Noise
                 {
                     noiseHeight = (domainWarpFbm(scale, octaves, persistance, lacunarity, octaveOffsets, halfWidth, halfHeight, domainWarpStrength, y, x, Xwarp, Ywarp) +
                         fbm(scale, octaves, persistance, lacunarity, octaveOffsets, halfWidth, halfHeight, x, y))/2f;
-                    
                 }
+
                 noiseMap[x, y] += noiseHeight;
             }
         }
@@ -74,8 +75,6 @@ public static class Noise
                 }
             }
         }
-        Debug.Log("Max: " + maxNoiseHeight + " Min: " + minNoiseHeight);
-
 
         // make the values be [0,1]
         for (int y = 0; y < mapHeight; y++)
@@ -95,8 +94,8 @@ public static class Noise
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    if (falloff[x ,y] == 0 ) noiseMap[x,y] = falloff[x ,y];
-                    noiseMap[x, y] = noiseMap[x, y] * falloff[x, y];
+                    if (falloff[x ,y] == 0 ) noiseMap[x,y] = 0;
+                    noiseMap[x, y] = noiseMap[x, y] * noiseMap[x,y] * falloff[x, y];
                 }
             }
         }
@@ -104,16 +103,13 @@ public static class Noise
         // terrace try -> this needs the values to be normalised
         if (haveTerraces)
         {
-            float[] terracesLevel = new float[] { 0.1f, 0.15f, 0.5f};
+            float[] terracesLevel = new float[] { 0.1f, 0.15f};
             noiseMap = makeIntoTerracesLight(noiseMap, terracesLevel, terracesEasing);
         }
 
-        for (int y = 0; y < mapHeight; y++)
+        if (haveHydraErosion)
         {
-            for (int x = 0; x < mapWidth; x++)
-            {
-                noiseMap[x, y] = noiseMap[x, y] * noiseMap[x, y];
-            }
+            Erosion.Erode(noiseMap, mapWidth, noDroplets, seed);
         }
 
         return noiseMap;
@@ -222,8 +218,10 @@ public static class Noise
                 
                 distance = distance * distance;
 
-                if (distance < radius) distance = radius;
-                matrix[i, j] = Mathf.InverseLerp(radius, 1, distance);
+                if (distance < radius-0.06f) distance = 0;
+                if (distance > radius + 0.06f) distance = 1;
+                else distance = Mathf.InverseLerp(radius-0.06f, radius +0.06f, distance);
+                matrix[i, j] = Mathf.InverseLerp(0, 1, distance);
             }
         }
 

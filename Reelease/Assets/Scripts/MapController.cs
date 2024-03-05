@@ -36,7 +36,8 @@ public class MapController : MonoBehaviour
     #region Editor Visible Variables
     //public int mapWidth = 1;
     //public int mapHeight;
-    public int mapSize = 200;
+    // Map Size will have 4 steps: 1, 2, 3, 4. Each being multiplied with 250
+    public int mapSize = 300;
     public int screenWidth= 20;
     public int screenHeight;
     public int Xposition;
@@ -65,6 +66,9 @@ public class MapController : MonoBehaviour
     #endregion
 
     public bool autoUpdate;
+    public bool hydraulicErosion = true;
+    public int noDroplets = 10000;
+    public int radius = 3;
     public int heightMultiplicator = 2;
     public bool haveFalloff = false;
     public float falloffRadius = 1.5f;
@@ -80,47 +84,12 @@ public class MapController : MonoBehaviour
 
     public void GenerateMap()
     {
-        //SetHeightBasedOnScreenRatio();
 
-        //additionalPoints = new Dictionary<UnityEngine.Color, Collection<Point>>();
-
-        /*if (riverCount > 0) {
-            RiverLakeAlg.FillingCapacity = fillingCapacity;
-            if (!useRandomRivers)
-            {
-                Collection<Point> riversCoordCol = new Collection<Point>(riversCoord);
-                var riversList = RiverLakeAlg.GetRivers(noiseMap, riverCount, riverStartHeightInterval, riversCoordCol);
-                additionalPoints.Add(UnityEngine.Color.blue, riversList);
-            }
-            if (useRandomRivers)
-            {
-                var riversList = RiverLakeAlg.GetRivers(noiseMap, riverCount, riverStartHeightInterval);
-                additionalPoints.Add(UnityEngine.Color.blue, riversList);
-            }
-        }
-
-        if (showLocalMin)
-        {
-            var localMinPoints = RiverLakeAlg.GetLocalMinPoints(noiseMap);
-            additionalPoints.Add(UnityEngine.Color.yellow, localMinPoints);
-        }
-        if (showPassages)
-        {
-            var passagePoints = RiverLakeAlg.GetPassagePoints(noiseMap);
-            additionalPoints.Add(UnityEngine.Color.cyan, passagePoints);
-        }*/
-
-        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp, falloffRadius, resetFalloff, terracesEasing,  haveTerraces, haveFalloff);
-
-        Debug.Log("width: " + noiseMap.GetLength(0) + " height " + noiseMap.GetLength(1));
+        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp, falloffRadius, resetFalloff, terracesEasing, noDroplets, haveTerraces, haveFalloff, hydraulicErosion);
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
 
-        UnityEngine.Color[] cMap = display.GetColorMap(noiseMap, ColorsWithRatios, colorMode);
-
-        Debug.Log("color size " + cMap.Count());
-
-        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator), display.GetTexture(cMap, mapSize, mapSize));
+        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator), display.GetTexture(display.GetColorMap(noiseMap, ColorsWithRatios, colorMode), mapSize, mapSize));
 
     }
 
@@ -169,7 +138,7 @@ public class MapController : MonoBehaviour
         //if (mapWidth > 1000) mapWidth = 1000;
         if (terracesEasing < 1) { terracesEasing = 1; }
         if (mapSize < 1) mapSize = 1;
-        if (mapSize > 1000) mapSize = 1000;
+        if (mapSize > 500) mapSize = 500;
         if (octaves > 20) octaves = 20;
         if (noiseScale > 100) noiseScale = 100;
         if (persistance < 0.1f) persistance = 0.1f;

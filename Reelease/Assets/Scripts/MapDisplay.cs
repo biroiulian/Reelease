@@ -93,6 +93,7 @@ public class MapDisplay : MonoBehaviour
         var xRenderScale = meshRenderer.transform.localScale.x;
         meshRenderer.transform.localScale = new Vector3(xRenderScale, 1, xRenderScale);
 
+        //meshObject.GetComponent<MeshCollider>().transform.localScale = new Vector3(xRenderScale, 1, xRenderScale);
         // Draw2D(texture);
     }
 

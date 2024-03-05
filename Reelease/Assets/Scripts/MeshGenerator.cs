@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Linq;
+using System;
 
 public static class MeshGenerator
 {
@@ -9,6 +10,9 @@ public static class MeshGenerator
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
+
+        if (width != height) throw new ArgumentException("Height should be equal with width."); 
+
 
         float widthDistance = fixedWidth/(width-1);
         float heightDistance = fixedHeight/(height-1);
@@ -67,6 +71,7 @@ public class MeshData
     public Mesh CreateMesh()
     {
         Mesh mesh = new Mesh();
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
