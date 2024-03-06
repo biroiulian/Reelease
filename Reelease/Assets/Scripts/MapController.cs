@@ -34,9 +34,6 @@ public class MapController : MonoBehaviour
     public static float SCREEN_RATIO = 1;
 
     #region Editor Visible Variables
-    //public int mapWidth = 1;
-    //public int mapHeight;
-    // Map Size will have 4 steps: 1, 2, 3, 4. Each being multiplied with 250
     public int mapSize = 300;
     public int screenWidth= 20;
     public int screenHeight;
@@ -53,17 +50,6 @@ public class MapController : MonoBehaviour
     public ColorFloatPair[] ColorsWithRatios;
 
     public ColorMode colorMode = ColorMode.NoiseMap;
-    // public DrawMode drawMode = DrawMode.ThreeDimensional;
-    /*public int riverCount = 1;
-    public Point[] riversCoord;
-    public float fillingCapacity;
-    public HeightInterval riverStartHeightInterval;
-    public bool showLocalMin = false;
-    public bool showPassages = false;
-    public bool useRandomRivers = false;
-    public bool turnOnGizmos = true;*/
-    //private Dictionary<UnityEngine.Color, Collection<Point>> additionalPoints;
-    #endregion
 
     public bool autoUpdate;
     public bool hydraulicErosion = true;
@@ -78,7 +64,7 @@ public class MapController : MonoBehaviour
     public NoiseType noiseType = NoiseType.Perlin;
     public float domainWarpStrength = 10f;
     public float XYwarp = 2f;
-
+    #endregion
 
     private float[,] noiseMap;
 
@@ -93,43 +79,6 @@ public class MapController : MonoBehaviour
 
     }
 
-    void OnDrawGizmosSelected()
-    {
-
-        /*if (turnOnGizmos)
-        {
-            float widthDistance = screenWidth / (noiseMap.GetLength(0) - 1f);
-            //Debug.Log("wd g: " + widthDistance);
-            float heightDistance = screenHeight / (noiseMap.GetLength(1) - 1f);
-            //Debug.Log("hd g: " + heightDistance);
-
-            foreach (var pair in additionalPoints)
-            {
-                Gizmos.color = pair.Key;
-                foreach (var point in pair.Value)
-                {
-                    Gizmos.DrawSphere(new Vector3(Xposition + point.x * widthDistance, Yposition + noiseMap[point.x, point.y] * heightMultiplicator + 0.001f, Zposition - point.y * heightDistance), 0.2f);
-                }
-            }
-
-           *//* for (int y = 0; y < noiseMap.GetLength(1); y++)
-            {
-                for (int x = 0; x < noiseMap.GetLength(0); x++)
-                {
-                    Gizmos.color = UnityEngine.Color.white;
-                    Gizmos.DrawSphere(new Vector3(Xposition + x * widthDistance, noiseMap[x, y] * heightMultiplicator + Yposition, Zposition - y * heightDistance), 0.04f);
-                }
-            }*//*
-        }*/
-
-    }
-
-    /*private void SetHeightBasedOnScreenRatio()
-    {
-        SCREEN_RATIO = (float)Display.main.systemHeight / (float)Display.main.systemWidth;
-        mapHeight = (int)Mathf.Ceil(mapWidth * SCREEN_RATIO);
-        screenHeight = (int)Mathf.Ceil(screenWidth * SCREEN_RATIO);
-    }*/
 
     private void OnValidate()
     {

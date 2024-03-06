@@ -11,22 +11,33 @@ public static class Erosion
     public static int radius = 1;
     public static float speed = 0.2f;
 
-    public static float[,] erosionGradient;
+    public static float[,] erosionGradient1;
+    public static float[,] erosionGradient2;
 
     public static float[,] Erode(float[,] heightMap, int mapSize, int noDroplets, int seed)
     {
         UnityEngine.Random.InitState(seed);
-        erosionGradient = new float[3,3];
-        erosionGradient[0, 0] = 0.02f;
-        erosionGradient[0, 1] = 0.1f;
-        erosionGradient[0, 2] = 0.02f;
-        erosionGradient[1, 0] = 0.1f;
-        erosionGradient[1, 1] = 0.5f;
-        erosionGradient[1, 2] = 0.1f;
-        erosionGradient[2, 0] = 0.02f;
-        erosionGradient[2, 1] = 0.1f;
-        erosionGradient[2, 2] = 0.02f;
+        erosionGradient1 = new float[3,3];
+        erosionGradient1[0, 0] = 0.02f;
+        erosionGradient1[0, 1] = 0.04f;
+        erosionGradient1[0, 2] = 0.02f;
+        erosionGradient1[1, 0] = 0.04f;
+        erosionGradient1[1, 1] = 0.8f;
+        erosionGradient1[1, 2] = 0.04f;
+        erosionGradient1[2, 0] = 0.02f;
+        erosionGradient1[2, 1] = 0.04f;
+        erosionGradient1[2, 2] = 0.02f;
 
+        erosionGradient2 = new float[3, 3];
+        erosionGradient2[0, 0] = 0.05f;
+        erosionGradient2[0, 1] = 0.1f;
+        erosionGradient2[0, 2] = 0.05f;
+        erosionGradient2[1, 0] = 0.1f;
+        erosionGradient2[1, 1] = 0.4f;
+        erosionGradient2[1, 2] = 0.1f;
+        erosionGradient2[2, 0] = 0.05f;
+        erosionGradient2[2, 1] = 0.1f;
+        erosionGradient2[2, 2] = 0.05f;
 
         for (int i = 0; i < noDroplets; i++)
         {
@@ -46,8 +57,8 @@ public static class Erosion
         var currentX = xPos;
         var currentY = yPos;
 
-        var lifetime = 50;
-        var capacity = 0.04f;
+        var lifetime = 25;
+        var capacity = 0.1f;
         var sediment = 0f;
         var direction = 0;
         var erodedAmmount = 0f;
@@ -87,9 +98,10 @@ public static class Erosion
             else if (sediment > capacity)
             {
                 // Place overflowing of sediment
-                heightMap[currentX, currentY] += capacity / 8;
+                PlaceSediment(heightMap, currentX, currentY, capacity / 8);
                 //PlaceSediment(heightMap, currentX, currentY, sediment-capacity/8);
                 sediment -= capacity/8;
+                return;
             }
             
 
@@ -115,7 +127,7 @@ public static class Erosion
             yBrush = 0;
             for (int y = Mathf.Max(yPos - 1, 0); y <= Mathf.Min(yPos + 1, height); y++)
             {
-                noiseMap[x, y] -= erodedAmmount * erosionGradient[xBrush, yBrush];
+                noiseMap[x, y] -= erodedAmmount * erosionGradient2[xBrush, yBrush];
                 yBrush++;
             }
             xBrush++;
@@ -135,7 +147,7 @@ public static class Erosion
             yBrush = 0;
             for (int y = Mathf.Max(yPos - 1, 0); y <= Mathf.Min(yPos + 1, height); y++)
             {
-                noiseMap[x, y] += (sedimentAmmount) * erosionGradient[xBrush, yBrush];
+                noiseMap[x, y] += (sedimentAmmount) * erosionGradient1[xBrush, yBrush] * noiseMap[x,y];
                 yBrush++;
             }
             xBrush++;

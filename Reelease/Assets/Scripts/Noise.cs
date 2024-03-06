@@ -11,10 +11,55 @@ using System.Diagnostics.Tracing;
 public static class Noise
 {
     private static Point[] falloffPoints = new Point[5];
+    private static float[,] falloffMapCached;
     public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, NoiseType noiseType , float domainWarpStrength, float Xwarp, float Ywarp, float falloffRadius, bool resetFalloff, int terracesEasing, int noDroplets, bool haveTerraces = false, bool haveFalloff = false, bool haveHydraErosion = false)
     {
-        if (noiseType == NoiseType.Falloff) return GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
+        if (noiseType == NoiseType.Falloff)
+        {
+            falloffMapCached = GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
+            // Make walkable
+            // Choose some random points inside the falloff
+            var walkablePoints = new Point[] 
+            {
+                new Point(Random.Range(0, (mapWidth - 1)/2), Random.Range(0, (mapWidth - 1)/2)),
+                new Point(Random.Range((mapWidth - 1)/2, mapWidth - 1), Random.Range(0, (mapWidth - 1)/2)),
+                new Point(Random.Range(0, (mapWidth - 1)/2), Random.Range((mapWidth - 1)/2, mapHeight - 1)),
+                new Point(Random.Range((mapWidth - 1)/2, mapWidth - 1), Random.Range((mapWidth - 1)/2, mapHeight - 1)),
 
+            };
+
+            // Calculate distances to these points
+            float maxDistance = float.MinValue;
+            for (int i = 0; i < mapWidth; i++)
+            {
+                for (int j = 0; j < mapHeight; j++)
+                {
+                    if (falloffMapCached[i, j] > 0.1f)
+                    {
+                        float x, y, distance = float.MaxValue, tryDistance;
+                        x = i;
+                        y = j;
+                        foreach (Point point in walkablePoints)
+                        {
+                            tryDistance = Mathf.Sqrt(Mathf.Pow((x - point.x), 2) + Mathf.Pow((y - point.y), 2));
+                            if (distance > tryDistance)
+                            {
+                                distance = tryDistance;
+                            }
+                        }
+
+                        if (distance > maxDistance)
+                        { maxDistance = distance; }
+
+                        // Normalize distance to [0, 1]
+                        distance = Mathf.InverseLerp(0, maxDistance, distance);
+                        distance = 1 - distance;
+                        falloffMapCached[i, j] *= distance * 2;
+                    }
+                }
+            }
+            return falloffMapCached;
+        }
         float[,] noiseMap = new float[mapWidth, mapHeight];
 
         System.Random prng = new System.Random(seed);
@@ -86,16 +131,15 @@ public static class Noise
         }
 
         // falloff try
-        float[,] falloff = null;
         if (haveFalloff)
         {
-            falloff = GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
+            falloffMapCached = GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    if (falloff[x ,y] == 0 ) noiseMap[x,y] = 0;
-                    noiseMap[x, y] = noiseMap[x, y] * noiseMap[x,y] * falloff[x, y];
+                    if (falloffMapCached[x ,y] == 0 ) noiseMap[x,y] = 0;
+                    noiseMap[x, y] = noiseMap[x, y] * noiseMap[x,y] * falloffMapCached[x, y];
                 }
             }
         }
