@@ -6,20 +6,24 @@ using System;
 public static class MeshGenerator
 {
 
+    public static MeshData terrainMeshData;
+
     public static MeshData GenerateTerrainMesh(float[,] heightMap, float fixedWidth, float fixedHeight, int topLeftX, int topLeftZ, int distanceY, int heightMultiplicator)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
 
         if (width != height) throw new ArgumentException("Height should be equal with width."); 
-
+        
 
         float widthDistance = fixedWidth/(width-1);
         float heightDistance = fixedHeight/(height-1);
     
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
-        Debug.Log("width mesh: " + width+ " height mesh " + height);
+
+        float minHeight = float.MaxValue;
+        float maxHeight = float.MinValue;
 
         for (int y = 0; y < height; y++)
         {
@@ -28,6 +32,53 @@ public static class MeshGenerator
                 if(x * widthDistance == fixedWidth) { Debug.Log("It is w."); }
                 if (y * heightDistance == fixedHeight) { Debug.Log("It is h."); }
                 meshData.vertices[vertexIndex] = new Vector3(topLeftX + x * widthDistance, heightMap[x, y]*heightMultiplicator+ distanceY, topLeftZ - y*heightDistance);
+                meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
+
+                if (x < width - 1 && y < height - 1)
+                {
+                    meshData.AddTriangle(vertexIndex, vertexIndex + width + 1, vertexIndex + width);
+                    meshData.AddTriangle(vertexIndex + width + 1, vertexIndex, vertexIndex + 1);
+                }
+
+                if(heightMap[x, y] * heightMultiplicator + distanceY < minHeight)
+                {
+                    minHeight = heightMap[x, y] * heightMultiplicator + distanceY;
+                }
+                else if (heightMap[x, y] * heightMultiplicator + distanceY > maxHeight)
+                {
+                    maxHeight = heightMap[x, y] * heightMultiplicator + distanceY;
+                }
+
+                vertexIndex++;
+            }
+        }
+
+        Debug.Log("Min h: " + minHeight + " , Max h: " + maxHeight);
+        terrainMeshData = meshData;
+        return meshData;
+
+    }
+
+    public static MeshData GenerateWaterMesh(int width, int height, float fixedWidth, float fixedHeight, int topLeftX, int topLeftZ, int distanceY)
+    {
+
+        if (width != height) throw new ArgumentException("Height should be equal with width.");
+
+
+        float widthDistance = fixedWidth / (width - 1);
+        float heightDistance = fixedHeight / (height - 1);
+
+        MeshData meshData = new MeshData(width, height);
+        int vertexIndex = 0;
+        Debug.Log("width mesh: " + width + " height mesh " + height);
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (x * widthDistance == fixedWidth) { Debug.Log("It is w."); }
+                if (y * heightDistance == fixedHeight) { Debug.Log("It is h."); }
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x * widthDistance, distanceY, topLeftZ - y * heightDistance);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (x < width - 1 && y < height - 1)

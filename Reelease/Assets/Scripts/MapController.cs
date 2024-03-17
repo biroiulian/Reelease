@@ -6,24 +6,13 @@ using System.Collections.ObjectModel;
 using Unity.VisualScripting;
 using static UnityEngine.Mesh;
 using System.Linq;
+using System.Collections;
+using System.Security.Cryptography;
 
-public enum ColorMode { NoiseMap, LerpedColorMap, SharpColorMap };
-public enum DrawMode { Flat, ThreeDimensional };
 public enum NoiseType { Perlin, WarpedPerlin, PartiallyWarpedPerlin, Falloff};
 
-/// <summary>
-/// Used to represent a color and its ratio on the map. 
-/// By ratio, I mean how much of the (0,1) interval is allocated to that color.
-/// </summary>
 [System.Serializable]
-public class ColorFloatPair
-{
-    public UnityEngine.Color color;
-    public float ratio;
-}
-
-[System.Serializable]
-public struct HeightInterval
+public struct Interval
 {
     public float lowerLimit;
     public float upperLimit;
@@ -46,50 +35,99 @@ public class MapController : MonoBehaviour
     public float persistance;
     public float lacunarity;
     public int seed = 0;
-
-    public ColorFloatPair[] ColorsWithRatios;
-
-    public ColorMode colorMode = ColorMode.NoiseMap;
-
-    public bool autoUpdate;
-    public bool hydraulicErosion = true;
-    public int noDroplets = 10000;
-    public int radius = 3;
     public int heightMultiplicator = 2;
+
+    public bool hydraulicErosion = true;
+    public ErosionArguments erosionArgs;
+
     public bool haveFalloff = false;
     public float falloffRadius = 1.5f;
     public bool resetFalloff = false;
-    public bool haveTerraces = false;
-    public int terracesEasing = 5;
-    public NoiseType noiseType = NoiseType.Perlin;
+
+    public float waterLevel = 0.01f;
+    public float sinkStrength = 0.01f;
+
     public float domainWarpStrength = 10f;
     public float XYwarp = 2f;
+
+    public NoiseType noiseType = NoiseType.Perlin;
+    public bool updateEnviroment = false;
+    public EnviromentController enviromentController;
+    public bool autoUpdate;
     #endregion
+
+    private void Start()
+    {
+        //StartCoroutine(MapVisualiseErosion(2f));
+    }
 
     private float[,] noiseMap;
 
     public void GenerateMap()
     {
+        MapDisplay display;
 
-        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp, falloffRadius, resetFalloff, terracesEasing, noDroplets, haveTerraces, haveFalloff, hydraulicErosion);
+        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp/2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, haveFalloff, hydraulicErosion);
 
-        MapDisplay display = FindObjectOfType<MapDisplay>();
+        display = FindObjectOfType<MapDisplay>();
 
-        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator), display.GetTexture(display.GetColorMap(noiseMap, ColorsWithRatios, colorMode), mapSize, mapSize));
+        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
 
+        if (updateEnviroment)
+        {
+            enviromentController.GenerateEnviroment();
+        }
+    }
+
+    IEnumerator MapVisualiseSeeds(float seconds)
+    {
+        Debug.Log("sTART CORUTINE");
+        var initialDrops = erosionArgs.noDroplets;
+        for (int drops = 0; drops < initialDrops; drops += 1000)
+        {
+            MapDisplay display;
+            XYwarp += 1;
+            //erosionArgs.noDroplets = drops;
+            noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp / 2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, haveFalloff, hydraulicErosion);
+
+            display = FindObjectOfType<MapDisplay>();
+
+            display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
+
+            yield return new WaitForSeconds(seconds);
+        }
+    }
+
+
+    IEnumerator MapVisualiseErosion(float seconds)
+    {
+        Debug.Log("sTART CORUTINE");
+        for (int iseed = seed; iseed < seed + 50; iseed ++)
+        {
+            MapDisplay display;
+
+            noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, iseed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp / 2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, haveFalloff, hydraulicErosion);
+
+            display = FindObjectOfType<MapDisplay>();
+
+            display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
+
+            if (updateEnviroment)
+            {
+                enviromentController.GenerateEnviroment();
+            }
+
+            yield return new WaitForSeconds(seconds);
+        }
     }
 
 
     private void OnValidate()
     {
-        //if (fillingCapacity<=0) fillingCapacity = 0.01f;
-        //if (mapWidth < 1) mapWidth = 1;
-        //if (mapWidth > 1000) mapWidth = 1000;
-        if (terracesEasing < 1) { terracesEasing = 1; }
         if (mapSize < 1) mapSize = 1;
-        if (mapSize > 500) mapSize = 500;
+        if (mapSize > 1000) mapSize = 1000;
         if (octaves > 20) octaves = 20;
-        if (noiseScale > 100) noiseScale = 100;
+        if (noiseScale < 40) noiseScale = 40;
         if (persistance < 0.1f) persistance = 0.1f;
         if (persistance > 1) persistance = 1f;
         if (lacunarity < 1) lacunarity = 1;

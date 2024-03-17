@@ -1,0 +1,232 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MapShaderMaterial
+  m_Shader: {fileID: -6465566751694194690, guid: 74bd1d264755cfe468ff0ccff2cc2763, type: 3}
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Flat_Texture:
+        m_Texture: {fileID: 2800000, guid: 641613b13839b4648a5ca4be6b227b55, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass:
+        m_Texture: {fileID: 2800000, guid: 9234305f12ded3442b911c3ff978d340, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrassTexture:
+        m_Texture: {fileID: 2800000, guid: 3d7e23f397bd4e347bc2a33df00d0897, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass_Normals:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Grass_Texture:
+        m_Texture: {fileID: 2800000, guid: 92975eac003d6b744815ff80bf8b3aee, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mountain:
+        m_Texture: {fileID: 2800000, guid: f1c4c6bce19b05f48aa26fb0b06fd7e0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mountain_Normals:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mountain_Texture:
+        m_Texture: {fileID: 2800000, guid: c8748b2da9e969c4ba1bc7c5fb221595, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5c6670f595034bccba318552e8c9666c_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 619c99dd23151f64ea5993b2e8cbb737, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_896b6e3154b94e90b99b60e48db874d2_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 00bce16562851614bb4872a53343a7df, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_cc3aa5a0f45d410d9e41ae5fdd27c1d6_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 91a5e414e7fceba4699d96954169845a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_d892ed6ac28c4c84b2091548d0b5280e_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 91a5e414e7fceba4699d96954169845a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_f180cd36a1754dff88a68e7914825e04_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 4307e2e3838e1db4891bcfbe6697e54e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_f4d82273880d4927a98e592b12d15303_Texture_1:
+        m_Texture: {fileID: 2800000, guid: 5de12669da99a184da5d55c3b92fce9b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Slope_Texture:
+        m_Texture: {fileID: 2800000, guid: c8cf6f00d9169f8458d344c84a498c3b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_0f079d3647094a40b0fdd03a4bd0c0a3_Out_0:
+        m_Texture: {fileID: 2800000, guid: e4bf87eec83b05a4fb5d2f519fd54e84, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Depth_Fade: 0
+    - Smooth: 0
+    - Speed: 0
+    - Vector1_b477c45853f247c4b3ec903cfac6b438: 0
+    - Vector1_c892da3e47c54e8a865a0935bf75ad0a: 0
+    - _AlphaClip: 0
+    - _Ambient_Occlusion: 0.599
+    - _Blend: 0
+    - _BumpScale: 1
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
+    - _Color_Mask_Fuzzy: 0.7
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DetailAlbedoMapScale: 1
+    - _DetailNormalMapScale: 1
+    - _Dither_Strength: 0.1
+    - _DstBlend: 0
+    - _EnvironmentReflections: 1
+    - _Flat_Tiling: 24.5
+    - _GlossMapScale: 0
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _GrassHeight: 1
+    - _Grass_Tiling: 20
+    - _Grass_ammount: 0.4
+    - _Metallic: 0
+    - _MountainHeight: 2
+    - _Multi: 4.16
+    - _Multiply: 1.82
+    - _OcclusionStrength: 1
+    - _Parallax: 0.005
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _Rocks_Tiling: 64.83
+    - _Saturation: 2
+    - _Slope_intensity: 1.31
+    - _Slope_tiling: 1
+    - _Smoothness: 0
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _Surface: 0
+    - _TerrainHeight: 0.3
+    - _Tiling: 2
+    - _WorkflowMode: 1
+    - _XNormal: -4.1
+    - _Ynormal: 3.91
+    - _ZWrite: 1
+    - _Znormal: 0
+    - scale: 0
+    m_Colors:
+    - Color_07d66dbf459a427290c7b0403283d67f: {r: 0, g: 0, b: 0, a: 0}
+    - Deep: {r: 0, g: 0.6745098, b: 0.8352942, a: 1}
+    - Shallow: {r: 0, g: 0, b: 0, a: 0}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color_Mask: {r: 1, g: 0.11372549, b: 0, a: 1}
+    - _Divide_Factor: {r: 1, g: 1, b: 1, a: 1}
+    - _Emission: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Flat_color: {r: 0.30588236, g: 0.47450984, b: 0.21176472, a: 1}
+    - _Grass: {r: 0.2901961, g: 0.8301887, b: 0.2145959, a: 0}
+    - _Grass_Color: {r: 0.072913446, g: 0.7169812, b: 0, a: 1}
+    - _Height_Interval: {r: 1, g: 0, b: 0, a: 0}
+    - _Height_Range: {r: -2.5, g: 3, b: 0, a: 0}
+    - _High_Color: {r: 0.48235297, g: 0.36078432, b: 0.227451, a: 1}
+    - _Main_Color: {r: 0.37647063, g: 0.48627454, b: 0.27058825, a: 1}
+    - _Mountain: {r: 0.6603774, g: 0.41637653, b: 0.095941596, a: 0}
+    - _Mountain_Color: {r: 0.5566038, g: 0.34871563, b: 0, a: 1}
+    - _Normals_Remap_Range: {r: 0, g: 1, b: 0, a: 0}
+    - _Slope_color: {r: 0.3372549, g: 0.3296463, b: 0.1882353, a: 1}
+    - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+  m_BuildTextureStacks: []
+--- !u!114 &6687356188087702440
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 5

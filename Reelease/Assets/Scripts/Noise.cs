@@ -7,13 +7,31 @@ using System.Drawing;
 using System.Linq;
 using Random = UnityEngine.Random;
 using System.Diagnostics.Tracing;
+using static TreeEditor.TreeEditorHelper;
+using UnityEngine.UIElements;
 
 public static class Noise
 {
+    public static int mapSize = 300;
+    public static int screenWidth = 20;
+    public static int screenHeight;
+    public static int Xposition;
+    public static int Yposition;
+    public static int Zposition;
+    public static float seaLevel;
+    public static float noiseScale = 2;
+    public static int octaves = 1;
+    public static float persistance;
+    public static float lacunarity;
+    public static int seed = 0;
+
     private static Point[] falloffPoints = new Point[5];
     private static float[,] falloffMapCached;
-    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, NoiseType noiseType , float domainWarpStrength, float Xwarp, float Ywarp, float falloffRadius, bool resetFalloff, int terracesEasing, int noDroplets, bool haveTerraces = false, bool haveFalloff = false, bool haveHydraErosion = false)
+    private static float[,] noiseMapCached;
+    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, int seed, float scale, int octaves, float persistance, float lacunarity, NoiseType noiseType , float domainWarpStrength, float Xwarp, float Ywarp, float falloffRadius, bool resetFalloff, ErosionArguments erosionArgs, float waterLevel, float sinkStrength, bool haveFalloff = false, bool haveHydraErosion = false)
     {
+        CacheParameters(mapWidth, seed, scale, octaves, persistance, lacunarity, waterLevel);
+
         if (noiseType == NoiseType.Falloff)
         {
             falloffMapCached = GenerateFalloffMap(mapWidth, falloffRadius, resetFalloff);
@@ -138,27 +156,93 @@ public static class Noise
             {
                 for (int x = 0; x < mapWidth; x++)
                 {
-                    if (falloffMapCached[x ,y] == 0 ) noiseMap[x,y] = 0;
-                    noiseMap[x, y] = noiseMap[x, y] * noiseMap[x,y] * falloffMapCached[x, y];
+                    if (falloffMapCached[x ,y] == 0 ) 
+                        noiseMap[x,y] = 0;
+                    else 
+                        noiseMap[x, y] = noiseMap[x, y] * noiseMap[x,y] * falloffMapCached[x, y] + 0.1f;
                 }
             }
         }
 
-        // terrace try -> this needs the values to be normalised
-        if (haveTerraces)
-        {
-            float[] terracesLevel = new float[] { 0.1f, 0.15f};
-            noiseMap = makeIntoTerracesLight(noiseMap, terracesLevel, terracesEasing);
-        }
-
+        // Rain erosion
         if (haveHydraErosion)
         {
-            Erosion.Erode(noiseMap, mapWidth, noDroplets, seed);
+            Erosion.Erode(noiseMap, mapWidth, seed, erosionArgs);
+        }
+
+        // Apply sinking of values smaller than water level.
+        for (int y = 0; y < mapHeight; y++)
+        {
+            for (int x = 0; x < mapWidth; x++)
+            {
+                if (noiseMap[x, y] < waterLevel) noiseMap[x, y] = noiseMap[x,y] - sinkStrength;
+                else
+                {
+                    var suroundedBy = 0; // how many of the surounding points are below sea level
+                    for(int nx = x-1; nx <= x+1; nx++)
+                    {
+                        for( int ny = y-1; ny <= y+1; ny++)
+                        {
+                            if (noiseMap[nx, ny] < waterLevel ) suroundedBy++;
+                        }
+                    }
+                    if(suroundedBy >= 5)
+                    {
+                        noiseMap[x,y] = noiseMap[x,y] - sinkStrength;
+                    }
+                }
+            }
+        }
+
+        noiseMapCached = noiseMap;
+        return noiseMap;
+    }
+
+    private static void CacheParameters(int mapWidth, int seed, float scale, int octaves, float persistance, float lacunarity, float waterLevel)
+    {
+        mapSize = mapWidth;
+        noiseScale = scale;
+        Noise.octaves = octaves;
+        Noise.persistance = persistance;
+        Noise.lacunarity = lacunarity;
+        Noise.seed = seed;
+        Noise.seaLevel = waterLevel;
+    }
+
+    public static float[,] GenerateBinaryNoiseMap(float scale, int octaves, float persistance, float lacunarity, int seedOffset)
+    {
+        float[,] noiseMap = new float[mapSize, mapSize];
+
+        System.Random prng = new System.Random(seed + seedOffset);
+        Vector2[] octaveOffsets = new Vector2[octaves];
+        for (int i = 0; i < octaves; i++)
+        {
+            float offsetX = prng.Next(-100000, 100000);
+            float offsetY = prng.Next(-100000, 100000);
+            octaveOffsets[i] = new Vector2(offsetX, offsetY);
+        }
+
+        float halfSize = mapSize / 2f;
+
+        for (int y = 0; y < mapSize; y++)
+        {
+            for (int x = 0; x < mapSize; x++)
+            {
+                var height = fbm(scale, octaves, persistance, lacunarity, octaveOffsets, halfSize, halfSize, x, y);
+                if (height > -0.2f && noiseMapCached[x, y] > seaLevel)
+                    noiseMap[x, y] = 1;
+                else
+                    noiseMap[x, y] = 0;
+            }
         }
 
         return noiseMap;
     }
 
+    /// <summary>
+    /// My noise method that uses PerlinNoise.
+    /// </summary>
+    /// <returns> A value between -1 and 1. </returns>
     private static float fbm(float scale, int octaves, float persistance, float lacunarity, Vector2[] octaveOffsets, float halfWidth, float halfHeight, float y, float x)
     {
         float amplitude = 1;
@@ -171,7 +255,7 @@ public static class Noise
             float sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y;
 
             float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
-            //float perlinValue = DoWeirdStuff(sampleX, sampleY);
+            
             noiseHeight += perlinValue * amplitude;
 
             amplitude *= persistance;
@@ -179,34 +263,6 @@ public static class Noise
         }
 
         return noiseHeight;
-    }
-
-    public static float[,] makeIntoTerracesLight(float[,] noiseMap, float[] levels, int terracesEasing)
-    { 
-        int width = noiseMap.GetLength(0);
-        int height = noiseMap.GetLength(1);
-
-        bool setLevel = false;
-
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                foreach(float level in levels)
-                {
-                    if (noiseMap[i, j] < level) 
-                    {
-                        setLevel = true;
-                        noiseMap[i, j] = (noiseMap[i, j] * terracesEasing + level)/(terracesEasing+1);
-                        break;
-                    }
-                }
-                // edge case for the last level
-                setLevel = false;
-            }
-        }
-
-        return noiseMap;
     }
 
     static float domainWarpFbm(float scale, int octaves, float persistance, float lacunarity, Vector2[] octaveOffsets, float halfWidth, float halfHeight, float domainWarpStrength, int y, int x, float Xwarp, float Ywarp)
@@ -270,16 +326,6 @@ public static class Noise
         }
 
         return matrix;
-    }
-
-    public static float DoWeirdStuff(float x, float y)
-    {
-        //vec2 q = vec2(fbm(p + vec2(0.0, 0.0)), fbm(p + vec2(5.2, 1.3)));
-        var newX = Mathf.PerlinNoise(x + 0, y+0);
-        var newY = Mathf.PerlinNoise(x +  5.2f, y + 1.3f);
-
-        return Mathf.PerlinNoise(x + 4 * newX, y + 4 * newY);
-
     }
 
 }

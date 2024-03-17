@@ -2,25 +2,26 @@ using UnityEngine;
 using System.Collections;
 using UnityEditor;
 
-[CustomEditor(typeof(MapController))]
-public class MapGeneratorEditor : Editor
+[CustomEditor(typeof(EnviromentController))]
+public class EnviromentGeneratorEditor : Editor
 {
+
     public override void OnInspectorGUI()
     {
-        MapController mapGen = (MapController)target;
+        EnviromentController envGen = (EnviromentController)target;
 
         if (DrawDefaultInspector())
         {
-            if (mapGen.autoUpdate)
+            if (envGen.autoUpdate)
             {
-                mapGen.GenerateMap();
+                envGen.DrawEnviroment();
             }
         }
 
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Generate"))
         {
-            mapGen.GenerateMap();
+            envGen.DrawEnviroment();
         }
         GUILayout.EndHorizontal();
     }

@@ -5,14 +5,14 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using static MapController;
-
+/*
 public static class RiverLakeAlg
 {
     public static float RiverStartMinHeight = 0.8f, RiverStartMaxHeight = 0.9f;
     public static float RiverDepth = 0.2f;
     public static float FillingCapacity = 0.2f;
 
-    public static Collection<Point> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval)
+    public static Collection<Point<int>> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval)
     {
         if (riversCount == 0) { return null; }
 
@@ -25,7 +25,7 @@ public static class RiverLakeAlg
         // We will make the given number of rivers if the number of starting points allow it.
         // If not, then we make as many rivers as we can.
         var startPointsCount = startPoints.Count;
-        var riversList = new Collection<Point>();
+        var riversList = new Collection<Point<int>>();
         if (startPointsCount > 0)
         {
 
@@ -36,8 +36,8 @@ public static class RiverLakeAlg
                 startPoints.RemoveAt(chosenPointPos);
 
                 // I'm curious if I write the below 3 lines in a single line, would it have the same effect?
-                Collection<Point> riverPoints = new Collection<Point>();
-                var globallyFilledPoints = new Collection<Point>();
+                Collection<Point<int>> riverPoints = new Collection<Point<int>>();
+                var globallyFilledPoints = new Collection<Point<int>>();
                 riverPoints = findRiverPath(noiseMap, chosenPoint, riverPoints, globallyFilledPoints);
                 riversList.AddRange(riverPoints);
             }
@@ -47,27 +47,27 @@ public static class RiverLakeAlg
 
     }
 
-    public static Collection<Point> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval, Collection<Point> startPoints)
+    public static Collection<Point<int>> GetRivers(float[,] noiseMap, int riversCount, HeightInterval heightInterval, Collection<Point<int>> startPoints)
     {
         if (riversCount == 0) { return null; }
 
         RiverStartMinHeight = heightInterval.lowerLimit;
         RiverStartMaxHeight = heightInterval.upperLimit;
         
-        var riversList = new Collection<Point>();
+        var riversList = new Collection<Point<int>>();
 
         foreach(var p in startPoints)
         { 
             // I'm curious if I write the below 3 lines in a single line, would it have the same effect?
-            Collection<Point> riverPoints = new Collection<Point>();
-            var globallyFilledPoints = new Collection<Point>();
+            Collection<Point<int>> riverPoints = new Collection<Point<int>>();
+            var globallyFilledPoints = new Collection<Point<int>>();
             riversList.AddRange(findRiverPath(noiseMap, p, riverPoints, globallyFilledPoints));
         }
         return riversList;
 
     }
 
-    private static Collection<Point> findRiverPath(float[,] noiseMap, Point currentPoint, Collection<Point> traveled, Collection<Point> globallyFilledPoints)
+    private static Collection<Point<int>> findRiverPath(float[,] noiseMap, Point<int> currentPoint, Collection<Point<int>> traveled, Collection<Point<int>> globallyFilledPoints)
     {
         Debug.Log("Find River path from " + currentPoint.x  + " " + currentPoint.y);
         while (true)
@@ -100,7 +100,7 @@ public static class RiverLakeAlg
     /// <see cref="true"/> if the <see cref="tryingPoint"/> flows towards <see cref="lakeBottom"/>.
     /// <see cref="false"/> otherwise.
     /// </returns>
-    private static bool PointFlowsTowards(float[,] noiseMap, Point currentPoint, Point lakeBottom, Collection<Point> globallyFilledPoints)
+    private static bool PointFlowsTowards(float[,] noiseMap, Point<int> currentPoint, Point<int> lakeBottom, Collection<Point<int>> globallyFilledPoints)
     {
         if (currentPoint.x == lakeBottom.x && currentPoint.y == lakeBottom.y) 
         {
@@ -128,15 +128,15 @@ public static class RiverLakeAlg
         }
     }
 
-    private static Collection<Point> fill(float[,] noiseMap, Point start, float fillingTreshold, Collection<Point> traveled, Collection<Point> globallyFilledPoints)
+    private static Collection<Point<int>> fill(float[,] noiseMap, Point<int> start, float fillingTreshold, Collection<Point<int>> traveled, Collection<Point<int>> globallyFilledPoints)
     {
         Debug.Log("Fill from " + start.x + " " + start.y);
         var lakeBottom = start;
-        var travellingQueue = new Queue<Point>();
+        var travellingQueue = new Queue<Point<int>>();
         travellingQueue.Enqueue(start);
 
-        var localTraveled = new Collection<Point>();
-        var localOutflowPoints = new Collection<Point>();
+        var localTraveled = new Collection<Point<int>>();
+        var localOutflowPoints = new Collection<Point<int>>();
 
         while (travellingQueue.Count > 0)
         {
@@ -189,7 +189,7 @@ public static class RiverLakeAlg
     }
 
 
-    private static Collection<Point> getUnfillableNeighbours(float[,] noiseMap, Point point, Point lakeBottom, float fillingCapacity, Collection<Point> traveled, Collection<Point> globallyFilledPoints)
+    private static Collection<Point> getUnfillableNeighbours(float[,] noiseMap, Point<int> point, Point<int> lakeBottom, float fillingCapacity, Collection<Point<int>> traveled, Collection<Point<int>> globallyFilledPoints)
     {
         var unfittingNeighbours = new Collection<Point>();
 
@@ -442,15 +442,18 @@ public static class RiverLakeAlg
 
     }
 }
-
+*/
 [Serializable]
 public class Point
 {
     public Point() { }
     public Point(int x, int y) { this.x = x; this.y = y; }
 
+    public Point(int x, int y, int z) { this.x = x; this.y = y; this.z = z; }
+
     public int x;
     public int y;
+    public int z;
 
     public override bool Equals(object obj)
     {
@@ -459,8 +462,9 @@ public class Point
             return false;
         }
 
-        Point otherPoint = (Point)obj;
-        return (x == otherPoint.x) && (y == otherPoint.y);
+        Debug.LogWarning("Dangerous equals in points.");
+
+        return true;
     }
 
     public override int GetHashCode()
