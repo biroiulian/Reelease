@@ -3,15 +3,13 @@ using System;
 using System.IO;
 using UnityEngine;
 
-public class JsonDataService : IDataService
+public static class JsonDataService
 {
-    private static string persistentPath;
-    public JsonDataService() {
-        persistentPath = Application.persistentDataPath;
-    }
+    private static readonly string persistentPath = Application.persistentDataPath;
 
-    public void SaveData<T>(string relativePath, T data, bool encrypted)
+    public static void SaveData<T>(string relativePath, T data, bool encrypted = false)
     {
+        Debug.Log("Default data path: " + Application.persistentDataPath);
         var path = persistentPath + relativePath;
         try
         {
@@ -35,7 +33,7 @@ public class JsonDataService : IDataService
             
         }
     }
-    public T LoadData<T>(string relativePath, bool encrypted)
+    public static T LoadData<T>(string relativePath, bool encrypted = false)
     {
         string path = persistentPath + relativePath;
 
@@ -58,7 +56,7 @@ public class JsonDataService : IDataService
         }
     }
 
-    public bool FileExists(string relativePath) {
+    public static bool FileExists(string relativePath) {
         var path = Application.persistentDataPath + relativePath;
         return File.Exists(path);
     }

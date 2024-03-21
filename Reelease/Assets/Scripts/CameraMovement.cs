@@ -1,53 +1,132 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraMovement : MonoBehaviour
+class CameraMovement : MonoBehaviour
 {
-    private Vector3 touchStart;
-    public Camera cam;
-    public float groundY = 0;
-    public float LowerCameraLimitX;
-    public float UpperCameraLimitX;
-    public float LowerCameraLimitZ;
-    public float UpperCameraLimitZ;
+#if UNITY_IOS || UNITY_ANDROID
+    public Camera Camera;
+    public bool Rotate;
+    protected Plane Plane;
+    public float DecreaseCameraPanSpeed = 1; //Default speed is 1
+    public float CameraUpperHeightBound; //Zoom out
+    public float CameraLowerHeightBound; //Zoom in
+    public float DistanceFromFloor;
 
-    // Update is called once per frame
-    void Update()
+    private Vector3 cameraStartPosition;
+    private void Awake()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Camera == null)
+            Camera = Camera.main;
+
+        cameraStartPosition = Camera.transform.position;
+    }
+
+    private void Update()
+    {
+        //Update Plane
+        if (Input.touchCount >= 1)
+            Plane.SetNormalAndPosition(transform.up, transform.position);
+
+        var Delta1 = Vector3.zero;
+        var Delta2 = Vector3.zero;
+
+        //Scroll (Pan function)
+        if (Input.touchCount >= 1)
         {
-            touchStart = GetWorldPosition(groundY);
-        }
-        if (Input.GetMouseButton(0))
-        {
-            Vector3 direction = touchStart - GetWorldPosition(groundY);
-            cam.transform.position += direction;
+            //Get distance camera should travel
+            Delta1 = PlanePositionDelta(Input.GetTouch(0)) / DecreaseCameraPanSpeed;
+            if (Input.GetTouch(0).phase == TouchPhase.Moved)
+                Camera.transform.Translate(Delta1, Space.World);
         }
 
-        if (cam.transform.position.x < LowerCameraLimitX)
+        //Pinch (Zoom Function)
+        if (Input.touchCount >= 2)
         {
-            cam.transform.position.Set(LowerCameraLimitX, cam.transform.position.y, cam.transform.position.z);
+            var pos1 = PlanePosition(Input.GetTouch(0).position);
+            var pos2 = PlanePosition(Input.GetTouch(1).position);
+            var pos1b = PlanePosition(Input.GetTouch(0).position - Input.GetTouch(0).deltaPosition);
+            var pos2b = PlanePosition(Input.GetTouch(1).position - Input.GetTouch(1).deltaPosition);
+
+            //calc zoom
+            var zoom = Vector3.Distance(pos1, pos2) /
+                       Vector3.Distance(pos1b, pos2b);
+
+            //edge case
+            if (zoom == 0 || zoom > 10)
+                return;
+
+
+            // Shoot a ray from the camera towards floor, and keep distance from the floor precisely between some bounds.
+            Ray ray = new Ray(Camera.transform.position, Vector3.down);
+
+            float floorHeight = 0;
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, 20))
+            {
+                floorHeight = hitInfo.point.y;
+                Debug.Log(floorHeight + " -  -  -");
+            }
+
+            //Move cam amount the mid ray
+            Vector3 camPositionBeforeAdjustment = Camera.transform.position;
+            var newPos = Vector3.LerpUnclamped(pos1, Camera.transform.position, 1 / zoom);
+            if(newPos.y < floorHeight + DistanceFromFloor)
+            {
+                newPos.y = floorHeight + DistanceFromFloor;
+            }
+
+            Camera.transform.position = newPos;
+
+            //Restricts zoom height 
+
+            //Upper (ZoomOut)
+            if (Camera.transform.position.y > (cameraStartPosition.y + CameraUpperHeightBound) )
+            {
+                Camera.transform.position = camPositionBeforeAdjustment;
+            }
+            //Lower (Zoom in)
+            if (Camera.transform.position.y < (cameraStartPosition.y - CameraLowerHeightBound) || Camera.transform.position.y <= 1)
+            {
+                Camera.transform.position = camPositionBeforeAdjustment;
+            }
+
+
+            //Rotation Function
+            if (Rotate && pos2b != pos2)
+                Camera.transform.RotateAround(pos1, Plane.normal, Vector3.SignedAngle(pos2 - pos1, pos2b - pos1b, Plane.normal));
         }
-        if (cam.transform.position.x > UpperCameraLimitX)
-        {
-            cam.transform.position.Set(UpperCameraLimitX, cam.transform.position.y, cam.transform.position.z);
-        }
-        if (cam.transform.position.z < LowerCameraLimitZ)
-        {
-            cam.transform.position.Set(cam.transform.position.x, cam.transform.position.y, LowerCameraLimitZ);
-        }
-        if (cam.transform.position.z > UpperCameraLimitZ)
-        {
-            cam.transform.position.Set(cam.transform.position.x, cam.transform.position.y, UpperCameraLimitZ);
-        }
+
     }
-    private Vector3 GetWorldPosition(float z)
+
+    //Returns the point between first and final finger position
+    protected Vector3 PlanePositionDelta(Touch touch)
     {
-        Ray mousePos = cam.ScreenPointToRay(Input.mousePosition);
-        Plane ground = new Plane(Vector3.down, new Vector3(z, 0, 0));
-        float distance;
-        ground.Raycast(mousePos, out distance);
-        return mousePos.GetPoint(distance);
+        //not moved
+        if (touch.phase != TouchPhase.Moved)
+            return Vector3.zero;
+
+
+        //delta
+        var rayBefore = Camera.ScreenPointToRay(touch.position - touch.deltaPosition);
+        var rayNow = Camera.ScreenPointToRay(touch.position);
+        if (Plane.Raycast(rayBefore, out var enterBefore) && Plane.Raycast(rayNow, out var enterNow))
+            return rayBefore.GetPoint(enterBefore) - rayNow.GetPoint(enterNow);
+
+        //not on plane
+        return Vector3.zero;
     }
+
+    protected Vector3 PlanePosition(Vector2 screenPos)
+    {
+        //position
+        var rayNow = Camera.ScreenPointToRay(screenPos);
+        if (Plane.Raycast(rayNow, out var enterNow))
+            return rayNow.GetPoint(enterNow);
+
+        return Vector3.zero;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawLine(transform.position, transform.position + transform.up);
+    }
+#endif
 }

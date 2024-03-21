@@ -1,14 +1,6 @@
 using UnityEngine;
-using System.Collections;
-using System;
-using System.Numerics;
 using Vector2 = UnityEngine.Vector2;
-using System.Drawing;
-using System.Linq;
 using Random = UnityEngine.Random;
-using System.Diagnostics.Tracing;
-using static TreeEditor.TreeEditorHelper;
-using UnityEngine.UIElements;
 
 public static class Noise
 {
