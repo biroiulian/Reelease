@@ -46,9 +46,12 @@ public class MapDisplay : MonoBehaviour
         meshFilter.sharedMesh.Clear();
         meshFilter.sharedMesh = meshData.CreateMesh();
         meshFilter.sharedMesh.RecalculateNormals();
-        meshCollider.sharedMesh.Clear();
-        meshCollider.sharedMesh = meshData.CreateMesh();
-        meshCollider.sharedMesh.RecalculateNormals();
+        if (meshCollider != null)
+        {
+            meshCollider.sharedMesh.Clear();
+            meshCollider.sharedMesh = meshData.CreateMesh();
+            meshCollider.sharedMesh.RecalculateNormals();
+        }
 
         // The part that handles scaling. We need this to keep our mesh inside the screen.
         var xRenderScale = meshRenderer.transform.localScale.x;

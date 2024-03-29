@@ -53,7 +53,6 @@ public class AnimalMovement : MonoBehaviour
         if(lastRefreshDirectionTime + directionCooldown < Time.time)
         {
             direction = GetCoherentNextDirectionVector();
-            Debug.Log("new dir " + direction);
             lastRefreshDirectionTime += directionCooldown;
         }
 
@@ -136,7 +135,6 @@ public class AnimalMovement : MonoBehaviour
         if(collision.gameObject.tag == "Natural Obstacle")
         {
             direction = GetOppositeDirectionVector();
-            //Debug.DrawLine(transform.position, collision.gameObject.transform.position, Color.red, 3);
         }
     }
 
@@ -148,10 +146,8 @@ public class AnimalMovement : MonoBehaviour
         {
             if (Mathf.Abs(hitInfo.normal.x) > maxSlope)
             {
-                //Debug.DrawLine(ray.origin, hitInfo.point, Color.red, 3);
                 direction = GetOppositeDirectionVector();
             }
-            //Debug.DrawLine(ray.origin, ray.origin + ray.direction * 3, Color.green);
         }
     }
 

@@ -11,9 +11,9 @@ public struct ErosionArguments
     public int noDroplets;
     public float inertia;
     public int radius;
-    public float speed;
+    public double speed;
     public int lifetime;
-    public float capacity;
+    public double capacity;
 }
 
 public static class Erosion
@@ -24,7 +24,7 @@ public static class Erosion
     public static float[,] sedimentPlacementMask;
     public static float[,] erosionMask;
 
-    public static float[,] Erode(float[,] heightMap, int mapSize, int seed, ErosionArguments args)
+    public static double[,] Erode(double[,] heightMap, int mapSize, int seed, ErosionArguments args)
     {
         InitalizeValues(args);
 
@@ -51,14 +51,14 @@ public static class Erosion
         radius = args.radius;
     }
 
-    private static void PlaceDroplet(ref float[,] heightMap, int xPos, int yPos, ErosionArguments args)
+    private static void PlaceDroplet(ref double[,] heightMap, int xPos, int yPos, ErosionArguments args)
     {
         var currentX = xPos;
         var currentY = yPos;
         var lifetime = args.lifetime;
         var capacity = args.capacity;
         var inertia = args.inertia;
-        var sediment = 0f;
+        var sediment = 0.0d;
         var direction = -1;
         var speed = args.speed;
 
@@ -83,7 +83,7 @@ public static class Erosion
             speed = speed * heightMap[currentX, currentY] - heightMap[nextX, nextY];
 
             // Calculate erosion
-            float erodedAmmount = Mathf.Min(capacity - sediment, Mathf.Abs(heightMap[currentX, currentY] - heightMap[nextX, nextY])) * (UnityEngine.Random.Range(1,11)/10f);
+            double erodedAmmount = Math.Min(capacity - sediment, Math.Abs(heightMap[currentX, currentY] - heightMap[nextX, nextY])) * (UnityEngine.Random.Range(1,11)/10f);
             sediment += erodedAmmount;
 
             // Erode
@@ -93,8 +93,10 @@ public static class Erosion
             {
                 // Place overflowing of sediment
                 //heightMap[currentX, currentY] -= sediment - capacity;
-                PlaceSediment(heightMap, currentX, currentY, sediment - capacity);
-                sediment -= (sediment - capacity);
+
+                    PlaceSediment(heightMap, currentX, currentY, sediment - capacity);
+                    sediment -= (sediment - capacity);
+
             }
 
             currentX = nextX;
@@ -106,7 +108,7 @@ public static class Erosion
         PlaceSediment(heightMap, currentX, currentY, sediment);
     }
 
-    private static void ErodeArea(float[,] noiseMap, int xPos, int yPos, float erodedAmmount)
+    private static void ErodeArea(double[,] noiseMap, int xPos, int yPos, double erodedAmmount)
     {
         var width = noiseMap.GetLength(0) - 1;
         var height = noiseMap.GetLength(1) - 1;
@@ -126,7 +128,7 @@ public static class Erosion
         }
     }
 
-    private static void PlaceSediment(float[,] noiseMap, int xPos, int yPos, float sedimentAmmount)
+    private static void PlaceSediment(double[,] noiseMap, int xPos, int yPos, double sedimentAmmount)
     {
         var width = noiseMap.GetLength(0) - 1;
         var height = noiseMap.GetLength(1) - 1;
@@ -146,7 +148,7 @@ public static class Erosion
         }
     }
 
-    private static (int x, int y, int dir) GetLowestNeighbourAndDirection(float[,] noiseMap, int xPos, int yPos, int previousDirection, float speed, float inertia)
+    private static (int x, int y, int dir) GetLowestNeighbourAndDirection(double[,] noiseMap, int xPos, int yPos, int previousDirection, double speed, float inertia)
     {
         
         if (previousDirection < -1 || previousDirection > 7) throw new ArgumentException(previousDirection.ToString());
@@ -166,7 +168,7 @@ public static class Erosion
             return (-1, -1, -1);
         }
 
-        float minValue = float.MaxValue;
+        double minValue = double.MaxValue;
         var nextDirection = -1;
 
         int minXPos = -1, minYPos = -1, localDirection = 0;
@@ -271,8 +273,6 @@ public static class Erosion
             }
             str += "\n";
         }
-
-        Debug.Log("matr\n" + str);
 
         return matrix;
     }

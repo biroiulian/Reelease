@@ -8,6 +8,7 @@ using static UnityEngine.Mesh;
 using System.Linq;
 using System.Collections;
 using System.Security.Cryptography;
+using Color = UnityEngine.Color;
 
 public enum NoiseType { Perlin, WarpedPerlin, PartiallyWarpedPerlin, Falloff};
 
@@ -36,12 +37,15 @@ public class MapController : MonoBehaviour
     public float lacunarity;
     public int seed = 0;
     public int heightMultiplicator = 2;
+    public bool improvedPerlin = true;
+    public bool useSmooth = true;
 
     public bool hydraulicErosion = true;
     public ErosionArguments erosionArgs;
 
     public bool haveFalloff = false;
     public float falloffRadius = 1.5f;
+    public AnimationCurve falloffCurve;
     public bool resetFalloff = false;
 
     public float waterLevel = 0.01f;
@@ -54,20 +58,26 @@ public class MapController : MonoBehaviour
     public bool updateEnviroment = false;
     public EnviromentController enviromentController;
     public bool autoUpdate;
+
+    public TestMapDisplay testDisplay;
     #endregion
+
+    private string filePath = "/mapData.json";
 
     private void Start()
     {
         //StartCoroutine(MapVisualiseErosion(2f));
     }
 
-    private float[,] noiseMap;
+    private double[,] noiseMap;
 
     public void GenerateMap()
     {
         MapDisplay display;
 
-        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp/2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, haveFalloff, hydraulicErosion);
+        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp/2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, falloffCurve, haveFalloff, hydraulicErosion, useSmooth, improvedPerlin);
+
+        testDisplay.DrawNoiseMap(noiseMap);
 
         display = FindObjectOfType<MapDisplay>();
 
@@ -79,6 +89,78 @@ public class MapController : MonoBehaviour
         }
     }
 
+    public void GenerateMap(bool useErosion = true, bool useEnviroment = true)
+    {
+        hydraulicErosion = useErosion;
+        updateEnviroment = useEnviroment;
+        MapDisplay display;
+
+        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, seed, noiseScale, octaves, persistance, lacunarity, noiseType, domainWarpStrength, XYwarp, XYwarp / 2, falloffRadius, resetFalloff, erosionArgs, waterLevel, sinkStrength, falloffCurve, haveFalloff, useErosion);
+
+        display = FindObjectOfType<MapDisplay>();
+
+        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
+
+        if (useEnviroment)
+        {
+            enviromentController.GenerateEnviroment();
+        }
+        else
+        {
+            enviromentController.DeleteEnviroment();
+        }
+    }
+
+    public void SaveMap()
+    {
+        Debug.Log("Attempting save of the map.");
+        if (JsonDataService.FileExists(filePath))
+        {
+            Debug.LogWarning("Suspicious behaviour: Trying to save map but map already exists. Maybe you wanted to save enviroment? Proceeding with overriding.");
+        }
+
+        if (!updateEnviroment)
+        {
+            Debug.Log("We didn't generate the enviroment, so we generate it now. We can't have a map without vegetation.");
+            enviromentController.GenerateEnviroment();
+        }
+
+        JsonDataService.SaveData(filePath, GetMapProps());
+    }
+
+    public void LoadMap()
+    {
+        var mapData = JsonDataService.LoadData<MapPropsHolder>(filePath);
+        mapSize = mapData.mapSize;
+        screenWidth = mapData.screenWidth;
+        screenHeight = mapData.screenHeight;
+        Xposition = mapData.Xposition;
+        Yposition = mapData.Yposition;
+        Zposition = mapData.Zposition;
+        noiseScale = mapData.noiseScale;
+        octaves = mapData.octaves;
+        persistance = mapData.persistance;
+        lacunarity = mapData.lacunarity;
+        seed = mapData.seed;
+        heightMultiplicator = mapData.heightMultiplicator;
+        hydraulicErosion = mapData.hydraulicErosion;
+        erosionArgs = mapData.erosionArgs;
+        haveFalloff = mapData.haveFalloff;
+        resetFalloff = mapData.resetFalloff;
+        waterLevel = mapData.waterLevel;
+        sinkStrength = mapData.sinkStrength;
+        domainWarpStrength = mapData.domainWarpStrength;
+        XYwarp = mapData.XYwarp;
+        noiseType = mapData.noiseType;
+
+        updateEnviroment = false;
+
+        GenerateMap();
+        
+        enviromentController.LoadEnviroment(mapData.enviromentData);
+        
+    }
+/*
     IEnumerator MapVisualiseSeeds(float seconds)
     {
         Debug.Log("sTART CORUTINE");
@@ -120,7 +202,7 @@ public class MapController : MonoBehaviour
             yield return new WaitForSeconds(seconds);
         }
     }
-
+*/
 
     private void OnValidate()
     {
@@ -134,4 +216,67 @@ public class MapController : MonoBehaviour
         if (lacunarity > 3) lacunarity = 3;
     }
 
+    internal MapPropsHolder GetMapProps()
+    {
+        var mapProps = new MapPropsHolder()
+        {
+            mapSize = mapSize,
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            Xposition = Xposition,
+            Yposition = Yposition,
+            Zposition = Zposition,
+            noiseScale = noiseScale,
+            octaves = octaves,
+            persistance = persistance,
+            lacunarity = lacunarity,
+            seed = seed,
+            heightMultiplicator = heightMultiplicator,
+            hydraulicErosion = hydraulicErosion,
+            erosionArgs = erosionArgs,
+            haveFalloff = haveFalloff,
+            resetFalloff = resetFalloff,
+            waterLevel = waterLevel,
+            sinkStrength = sinkStrength,
+            domainWarpStrength = domainWarpStrength,
+            XYwarp = XYwarp,
+            noiseType = noiseType,
+            enviromentData = enviromentController.GetEnviromentData(),
+        };
+
+        return mapProps;
+    }
+}
+
+public struct MapPropsHolder
+{
+    public int mapSize;
+    public int screenWidth;
+    public int screenHeight;
+    public int Xposition;
+    public int Yposition;
+    public int Zposition;
+
+    public float noiseScale;
+    public int octaves;
+    public float persistance;
+    public float lacunarity;
+    public int seed;
+    public int heightMultiplicator;
+
+    public bool hydraulicErosion;
+    public ErosionArguments erosionArgs;
+
+    public bool haveFalloff;
+    public float falloffRadius;
+    public bool resetFalloff;
+
+    public float waterLevel;
+    public float sinkStrength;
+
+    public float domainWarpStrength;
+    public float XYwarp;
+
+    public NoiseType noiseType;
+    public EnviromentData enviromentData;
 }

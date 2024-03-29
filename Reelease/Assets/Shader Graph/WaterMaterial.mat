@@ -112,15 +112,16 @@ Material:
     m_Floats:
     - Boolean_8f755de89e184da894125981c4c0ba78: 0
     - Depth_Fade: 0.51
-    - Smooth: 0.626
-    - Speed: 0.01
+    - Smooth: 0.393
+    - Speed: 0.03
     - Vector1_309cb8b1b2a4466aa02e543ab0c85a6e: 1
     - Vector1_4d9d83f9939e4caa8b44a1cbb1a0d82e: 0.12
     - Vector1_97655d08d61e40ffa24ba5dfb2fb2508: 2.69
     - Vector1_a1303d1858b74dc3808d8b7858823843: -11.1
-    - Vector1_b477c45853f247c4b3ec903cfac6b438: 0.1
-    - Vector1_c892da3e47c54e8a865a0935bf75ad0a: 0.003
+    - Vector1_b477c45853f247c4b3ec903cfac6b438: 0.2
+    - Vector1_c892da3e47c54e8a865a0935bf75ad0a: 0.004
     - _AlphaClip: 0
+    - _Ambient_Occlusion: 0.41
     - _BASE_COLOR_WEIGHT: 1
     - _BUMP_MAP_STRENGTH: 0.3
     - _Blend: 0
@@ -138,7 +139,7 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _METALNESS: 0
-    - _Metallic: 0
+    - _Metallic: 0.21
     - _Multi: 0.2
     - _OcclusionStrength: 1
     - _Parallax: 0.005
@@ -161,9 +162,9 @@ Material:
     - scale: 12
     - sin_freq: 9.72
     m_Colors:
-    - Color_07d66dbf459a427290c7b0403283d67f: {r: 0.54901963, g: 0.9953405, b: 1, a: 1}
-    - Deep: {r: 0.19784619, g: 0.3062593, b: 0.4245283, a: 1}
-    - Shallow: {r: 0.4943396, g: 0.8314467, b: 1, a: 1}
+    - Color_07d66dbf459a427290c7b0403283d67f: {r: 0.5249555, g: 0.9528302, b: 0.7146198, a: 1}
+    - Deep: {r: 0.13008183, g: 0.44852936, b: 0.7924528, a: 1}
+    - Shallow: {r: 0.35436094, g: 0.7924528, b: 0.58977294, a: 1}
     - Vector3_a51b31a925e44bd791d49ff6a2a52c60: {r: 0, g: 0, b: 0, a: 0}
     - Vector3_a51b31a925e44bd791d49ff6a2a52c60_1: {r: 0, g: 0, b: 0, a: 0}
     - _BASE_COLOR: {r: 1, g: 1, b: 1, a: 1}

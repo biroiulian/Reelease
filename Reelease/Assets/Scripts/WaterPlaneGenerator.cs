@@ -24,7 +24,7 @@ public class WaterPlaneGenerator : MonoBehaviour
 
     public void GenerateWater()
     {
-        MapDisplay display = FindObjectOfType<MapDisplay>();
+        MapDisplay display = gameObject.GetComponent<MapDisplay>();
 
         foreach (WaterPlane waterPlane in WaterPlanes)
         {

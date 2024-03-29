@@ -52,8 +52,7 @@ public class ChallengesController : MonoBehaviour
 
     private void InitializeItem(ChallengeItem challenge)
     {
-        var item = Instantiate(ChallengeItemPrefab);
-        item.transform.parent = ItemsContainer.transform;
+        var item = Instantiate(ChallengeItemPrefab, ItemsContainer.transform);
 
         // Get Text children's components
         var textsToSet = item.GetComponentsInChildren<TextMeshProUGUI>();

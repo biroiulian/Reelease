@@ -14,7 +14,7 @@ public enum ObjectType { Tree, Grass };
 public struct PlaceableObject
 {
     //public ObjectType ObjectType;
-    public GameObject[] ModelsVariation;
+    public ItemType[] ModelsVariation;
     public int NoInstances;
     //public float Radius;
     public bool ignoreRandom;
@@ -31,8 +31,8 @@ public struct PlaceableObject
 
     private float[,] SpreadMap;
 
-    public void SetSpreadMap(float[,] spreadMap) {  SpreadMap = spreadMap; }
-    public float[,] GetSpreadMap() {  return SpreadMap; }
+    public void SetSpreadMap(float[,] spreadMap) { SpreadMap = spreadMap; }
+    public float[,] GetSpreadMap() { return SpreadMap; }
 }
 
 public class EnviromentController : MonoBehaviour
@@ -42,7 +42,13 @@ public class EnviromentController : MonoBehaviour
     private Vector3[] PlacedObjects;
 
     public bool autoUpdate = true;
-    public bool resetPlacement = true;
+    public bool resetPlacement = false;
+
+    public ResourceDictionary ResourceDictionary;
+    public GameObject EnviromentContainer;
+
+    private List<EnviromentItem> placedDecortems = new List<EnviromentItem>();
+    private string filePath = "/mapData.json";
 
     public void DrawEnviroment()
     {
@@ -57,12 +63,12 @@ public class EnviromentController : MonoBehaviour
         {
             GenerateObjPositions(ref PlaceableObjects[i]);
         }
-        DrawObjects();
+        DrawRandomObjects();
     }
 
     private void Initialize()
     {
-        DeleteObjects();
+        DeleteEnviroment();
         int seedOffset = 1;
         for (int i = 0; i < PlaceableObjects.Length; i++)
         {
@@ -71,40 +77,74 @@ public class EnviromentController : MonoBehaviour
         }
     }
 
-    private void DeleteObjects()
+    public void DeleteEnviroment()
     {
-        for (int i = this.transform.childCount; i > 0; --i)
-            DestroyImmediate(this.transform.GetChild(0).gameObject);
+        for (int i = EnviromentContainer.transform.childCount; i > 0; --i)
+            DestroyImmediate(EnviromentContainer.transform.GetChild(0).gameObject);
+        placedDecortems.Clear();
     }
 
     public void LoadEnviroment()
     {
-        DrawObjects();
+        DrawRandomObjects();
     }
 
+    public void LoadEnviroment(EnviromentData envData)
+    {
+        Debug.Log("Drawing saved enviroment.");
+        placedDecortems = envData.items.ToList();
+        DrawSavedObjects();
+    }
 
-    private void DrawObjects()
-    {       
+    private void DrawSavedObjects()
+    {
+        foreach (EnviromentItem env in placedDecortems)
+        {
+            var instance = Instantiate(ResourceDictionary.GetItemResource(env.itemType).placeablePrefab, EnviromentContainer.transform);
+            instance.transform.position = new Vector3(env.position.x, env.position.y, env.position.z);
+            // Variation tweaks
+            // assign a random rotation on the Y axis
+            instance.transform.rotation.eulerAngles.Set(env.rotation.x, env.rotation.y, env.rotation.z);
+            // assign a random height scale
+            instance.transform.localScale = new Vector3(env.scale.x, env.scale.y, env.scale.z);
+            instance.transform.parent = EnviromentContainer.transform;
+        }
+    }
+
+    private void DrawRandomObjects()
+    {
         for (int i = 0; i < PlaceableObjects.Length; i++)
         {
             Debug.Log("Drawing " + PlaceableObjects[i].PlacedPositions.Count + " objects...");
 
-            for( int j = 0; j < PlaceableObjects[i].PlacedPositions.Count; j++)
+            for (int j = 0; j < PlaceableObjects[i].PlacedPositions.Count; j++)
             {
-                var instance = Instantiate<GameObject>(PlaceableObjects[i].ModelsVariation[UnityEngine.Random.Range(0, PlaceableObjects[i].ModelsVariation.Length)]);
+                var itemTypeToInstantiate = PlaceableObjects[i].ModelsVariation[UnityEngine.Random.Range(0, PlaceableObjects[i].ModelsVariation.Length)];
+                var instance = Instantiate(ResourceDictionary.GetItemResource(itemTypeToInstantiate).placeablePrefab, EnviromentContainer.transform);
                 instance.transform.position = new Vector3(PlaceableObjects[i].PlacedPositions[j].x, PlaceableObjects[i].PlacedPositions[j].y, PlaceableObjects[i].PlacedPositions[j].z);
                 // Variation tweaks
                 // assign a random rotation on the Y axis
                 instance.transform.Rotate(new Vector3(0f, 0f, UnityEngine.Random.Range(0, 180) * 1f));
                 // assign a random height scale
+                var randScaleFactor = UnityEngine.Random.Range(PlaceableObjects[i].ScaleVariation.lowerLimit, PlaceableObjects[i].ScaleVariation.upperLimit);
                 instance.transform.localScale = new Vector3(
-                    instance.transform.localScale.x, 
-                    UnityEngine.Random.Range(PlaceableObjects[i].ScaleVariation.lowerLimit, PlaceableObjects[i].ScaleVariation.upperLimit) * instance.transform.localScale.y, 
-                    instance.transform.localScale.z);
-                instance.transform.parent = transform;
+                    randScaleFactor * instance.transform.localScale.x,
+                    randScaleFactor * instance.transform.localScale.y,
+                    randScaleFactor * instance.transform.localScale.z);
+
+                // Save locally
+                placedDecortems.Add(new EnviromentItem() 
+                { 
+                    itemType = itemTypeToInstantiate, 
+                    position = new Coords3D() { x = instance.transform.position.x, y = instance.transform.position.y, z = instance.transform.position.z }, 
+                    rotation = new Coords3D() { x = instance.transform.rotation.eulerAngles.x, y = instance.transform.rotation.eulerAngles.y, z = instance.transform.rotation.eulerAngles.z },
+                    scale = new Coords3D() { x = instance.transform.localScale.x, y = instance.transform.localScale.y, z = instance.transform.localScale.z } 
+                });
             }
         }
     }
+
+
 
     private void GenerateObjPositions(ref PlaceableObject obj)
     {
@@ -134,7 +174,7 @@ public class EnviromentController : MonoBehaviour
         var validPos = new List<Vector3>();
 
         var index = 0;
-        for(int i = 0; i < vertsSize; i++)
+        for (int i = 0; i < vertsSize; i++)
         {
             for (int j = 0; j < vertsSize; j++)
             {
@@ -194,7 +234,7 @@ public class EnviromentController : MonoBehaviour
         {
             for (int y = Mathf.Max(yIndex - 1, 0); y <= Mathf.Min(yIndex + 1, size); y++)
             {
-                if(direction == 0)
+                if (direction == 0)
                 {
                     var nearVert = verts[x * size + y];
                     return new Vector3((nearVert.x + v.x) / 2, (nearVert.y + v.y) / 2, (nearVert.z + v.z) / 2);
@@ -207,20 +247,30 @@ public class EnviromentController : MonoBehaviour
         return Vector3.zero;
     }
 
+    public EnviromentData GetEnviromentData()
+    {
+        if (placedDecortems is null || placedDecortems.Count == 0)
+        {
+            Debug.LogWarning("Enviroment items are not initialized and are being requested.");
+        }
+
+        return new EnviromentData() { items = placedDecortems.ToArray() };
+    }
+
     private bool HasAcceptedHeightDifference(Vector3 v, int index, Vector3[] verts, float heightDifference)
     {
         var size = (int)MathF.Sqrt(verts.Count());
 
-        int xIndex = index/size;
-        int yIndex = index%size;
+        int xIndex = index / size;
+        int yIndex = index % size;
 
-        if (verts[size * xIndex + yIndex] != v) Debug.LogWarning("Vertex doesn't check up."); 
+        if (verts[size * xIndex + yIndex] != v) Debug.LogWarning("Vertex doesn't check up.");
 
         for (int x = Mathf.Max(xIndex - 1, 0); x <= Mathf.Min(xIndex + 1, size); x++)
         {
             for (int y = Mathf.Max(yIndex - 1, 0); y <= Mathf.Min(yIndex + 1, size); y++)
             {
-                if (Mathf.Abs(verts[size*x + y].y - v.y) > heightDifference)
+                if (Mathf.Abs(verts[size * x + y].y - v.y) > heightDifference)
                 {
                     return false;
                 }
@@ -229,5 +279,22 @@ public class EnviromentController : MonoBehaviour
 
         return true;
     }
+}
 
+public struct EnviromentData
+{
+    public EnviromentItem[] items;
+}
+
+public struct EnviromentItem
+{
+    public Coords3D position;
+    public Coords3D rotation;
+    public Coords3D scale;
+    public ItemType itemType;
+}
+
+public struct Coords3D
+{
+    public float x, y, z;
 }

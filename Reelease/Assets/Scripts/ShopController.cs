@@ -27,7 +27,7 @@ public class ShopController : MonoBehaviour
 
     private ShopItemsHolder shopItemsHolder;
 
-    private string filePath = "/shopItems.json";
+    private readonly string filePath = "/shopItems.json";
 
     private void Start()
     {
@@ -36,6 +36,7 @@ public class ShopController : MonoBehaviour
 
     public void Initialize()
     {
+        Debug.Log("Initialize Shop.");
         //
         ReadData();
 
@@ -49,8 +50,7 @@ public class ShopController : MonoBehaviour
 
     private void InitializeItem(string itemType)
     {
-        var item = Instantiate(ItemPrefab);
-        item.transform.parent = ItemsContainer.transform;
+        var item = Instantiate(ItemPrefab, ItemsContainer.transform);
 
         var itemInfo = ResourceDictionary.GetItemResource(itemType);
 
@@ -91,7 +91,7 @@ public class ShopController : MonoBehaviour
 
     private ShopItemsHolder FirstTimeInitialize()
     {
-        return new ShopItemsHolder() { items = new string[] { "Fox", "Llama", "Pug", "Horse", "Sheep" } };
+        return new ShopItemsHolder() { items = new string[] { "Fox", "Llama", "Pug", "Horse", "WhiteHorse", "Sheep", "Cow", "Stag","Donkey", "BirchTreeModel1", "BirchTreeModel2" } };
     }
 
     private string GetBeautifulName(ItemType t)

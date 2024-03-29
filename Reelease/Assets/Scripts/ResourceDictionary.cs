@@ -20,7 +20,6 @@ public class ResourceDictionary : MonoBehaviour
         {
             ItemDictionary.Add(item.itemType.ToString(), item);
         }
-
         // Quick validation that we did not repeat ourselves.
         Debug.Assert(ItemDictionary.Count == Items.Length);
 
@@ -37,6 +36,11 @@ public class ResourceDictionary : MonoBehaviour
     public ItemResource GetItemResource(string itemType)
     {
         return ItemDictionary.GetValueOrDefault(itemType);
+    }
+
+    public ItemResource GetItemResource(ItemType itemType)
+    {
+        return ItemDictionary.GetValueOrDefault(itemType.ToString());
     }
 
     internal Sprite GetIconFor(ChallengeItem challenge)
@@ -74,12 +78,19 @@ public enum ItemType
     RockModel3,
     Fox,
     Horse,
+    WhiteHorse,
     Sheep,
     Pug,
     Llama,
+    Stag,
+    Donkey,
+    Cow,
     StreakRestore,
     WeatherCleaner,
     CheatDay,
+    GrassModel1,
+    GrassModel2,
+    GrassModel3,
     // To be added
 }
 

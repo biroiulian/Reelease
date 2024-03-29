@@ -28,6 +28,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Control:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -68,6 +72,22 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Mask0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -82,6 +102,22 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _Mountain_Texture:
         m_Texture: {fileID: 2800000, guid: c8748b2da9e969c4ba1bc7c5fb221595, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal3:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -124,6 +160,26 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Splat0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat1:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat3:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TerrainHolesTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Texture2DAsset_0f079d3647094a40b0fdd03a4bd0c0a3_Out_0:
         m_Texture: {fileID: 2800000, guid: e4bf87eec83b05a4fb5d2f519fd54e84, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -148,8 +204,9 @@ Material:
     - Vector1_b477c45853f247c4b3ec903cfac6b438: 0
     - Vector1_c892da3e47c54e8a865a0935bf75ad0a: 0
     - _AlphaClip: 0
-    - _Ambient_Occlusion: 0.599
+    - _Ambient_Occlusion: 0.786
     - _Blend: 0
+    - _BlendOp: 0
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -160,18 +217,30 @@ Material:
     - _DetailNormalMapScale: 1
     - _Dither_Strength: 0.1
     - _DstBlend: 0
+    - _EnableHeightBlend: 0
+    - _EnableInstancedPerPixelNormal: 1
     - _EnvironmentReflections: 1
+    - _Fade: 3.53
+    - _Fade2: -235.72
+    - _Flat_Shading_Strength: 29.4
     - _Flat_Tiling: 24.5
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _GrassHeight: 1
     - _Grass_Tiling: 20
-    - _Grass_ammount: 0.4
-    - _Metallic: 0
+    - _Grass_ammount: 0.3
+    - _HeightTransition: 0
+    - _Metallic: 0.817
+    - _Metallic0: 0
+    - _Metallic1: 0
+    - _Metallic2: 0
+    - _Metallic3: 0
+    - _Mode: 0
     - _MountainHeight: 2
     - _Multi: 4.16
     - _Multiply: 1.82
+    - _NumLayersCount: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
@@ -181,13 +250,20 @@ Material:
     - _Saturation: 2
     - _Slope_intensity: 1.31
     - _Slope_tiling: 1
-    - _Smoothness: 0
+    - _Smoothness: 0.248
+    - _Smoothness0: 0.5
+    - _Smoothness1: 0.5
+    - _Smoothness2: 0.5
+    - _Smoothness3: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Stone_ammount: 0.9
     - _Surface: 0
     - _TerrainHeight: 0.3
     - _Tiling: 2
+    - _Transparency_Height: 0.6
+    - _UVSec: 0
     - _WorkflowMode: 1
     - _XNormal: -4.1
     - _Ynormal: 3.91
@@ -198,24 +274,29 @@ Material:
     - Color_07d66dbf459a427290c7b0403283d67f: {r: 0, g: 0, b: 0, a: 0}
     - Deep: {r: 0, g: 0.6745098, b: 0.8352942, a: 1}
     - Shallow: {r: 0, g: 0, b: 0, a: 0}
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.4528302, g: 0.3990032, b: 0.3990032, a: 1}
+    - _Color: {r: 0.45283014, g: 0.39900318, b: 0.39900318, a: 1}
     - _Color_Mask: {r: 1, g: 0.11372549, b: 0, a: 1}
     - _Divide_Factor: {r: 1, g: 1, b: 1, a: 1}
     - _Emission: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Flat_color: {r: 0.30588236, g: 0.47450984, b: 0.21176472, a: 1}
+    - _Flat_color: {r: 0.12156863, g: 0.49411765, b: 0, a: 1}
     - _Grass: {r: 0.2901961, g: 0.8301887, b: 0.2145959, a: 0}
     - _Grass_Color: {r: 0.072913446, g: 0.7169812, b: 0, a: 1}
-    - _Height_Interval: {r: 1, g: 0, b: 0, a: 0}
+    - _Height_Interval: {r: 0, g: 46.91, b: 0, a: 0}
     - _Height_Range: {r: -2.5, g: 3, b: 0, a: 0}
     - _High_Color: {r: 0.48235297, g: 0.36078432, b: 0.227451, a: 1}
+    - _High_Flat_Color: {r: 0.12953281, g: 0.254717, b: 0.09467782, a: 1}
+    - _High_Slope_Color: {r: 0.3962264, g: 0.2909012, b: 0.09868279, a: 1}
+    - _Interval: {r: -0, g: 0.1, b: 0, a: 0}
     - _Main_Color: {r: 0.37647063, g: 0.48627454, b: 0.27058825, a: 1}
+    - _Medium_Slope_Color: {r: 0.13333334, g: 0.18039216, b: 0.14901961, a: 1}
     - _Mountain: {r: 0.6603774, g: 0.41637653, b: 0.095941596, a: 0}
     - _Mountain_Color: {r: 0.5566038, g: 0.34871563, b: 0, a: 1}
     - _Normals_Remap_Range: {r: 0, g: 1, b: 0, a: 0}
     - _Slope_color: {r: 0.3372549, g: 0.3296463, b: 0.1882353, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
+    - _Stone_Slope_Color: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6687356188087702440
 MonoBehaviour:

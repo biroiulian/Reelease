@@ -8,7 +8,7 @@ public static class MeshGenerator
 
     public static MeshData terrainMeshData;
 
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float fixedWidth, float fixedHeight, int topLeftX, int topLeftZ, int distanceY, int heightMultiplicator)
+    public static MeshData GenerateTerrainMesh(double[,] heightMap, float fixedWidth, float fixedHeight, int topLeftX, int topLeftZ, int distanceY, int heightMultiplicator)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -22,8 +22,8 @@ public static class MeshGenerator
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
 
-        float minHeight = float.MaxValue;
-        float maxHeight = float.MinValue;
+        double minHeight = double.MaxValue;
+        double maxHeight = double.MinValue;
 
         for (int y = 0; y < height; y++)
         {
@@ -31,7 +31,7 @@ public static class MeshGenerator
             {
                 if(x * widthDistance == fixedWidth) { Debug.Log("It is w."); }
                 if (y * heightDistance == fixedHeight) { Debug.Log("It is h."); }
-                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x * widthDistance, heightMap[x, y]*heightMultiplicator+ distanceY, topLeftZ - y*heightDistance);
+                meshData.vertices[vertexIndex] = new Vector3(topLeftX + x * widthDistance, (float)heightMap[x, y]*heightMultiplicator+ distanceY, topLeftZ - y*heightDistance);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
 
                 if (x < width - 1 && y < height - 1)
