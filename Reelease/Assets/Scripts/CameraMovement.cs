@@ -178,17 +178,20 @@ public class CameraMovement : MonoBehaviour
 
     public void SetWorldCreationPerspective()
     {
+        Debug.Log("Set creation perspective.");
         cameraMode = CameraMode.WorldCreation;
         Camera.transform.position = WorldCreationPosition;
-        Camera.transform.rotation.SetFromToRotation(Camera.transform.rotation.eulerAngles, WorldCreationRotation);
+        Camera.main.transform.rotation = Quaternion.Euler(WorldCreationRotation);
         Debug.Log("Method: Set camera rotation to: " + Camera.transform.rotation);
     }
 
     public void SetGameplayPerspective()
     {
+        Debug.Log("Set gameplay perspective.");
         cameraMode = CameraMode.Gameplay;
         Camera.transform.position = GameplayPosition;
-        Camera.transform.rotation.SetFromToRotation(Camera.transform.rotation.eulerAngles, GameplayRotation);
+        Camera.main.transform.rotation = Quaternion.Euler(GameplayRotation);
+        Debug.Log("Method: Set camera rotation to: " + Camera.transform.rotation);
     }
 #endif
 

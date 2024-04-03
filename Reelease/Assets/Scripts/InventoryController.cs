@@ -75,8 +75,7 @@ public class InventoryController : MonoBehaviour
 
         if (itemInfo.itemGeneralType == ItemGeneralType.Placeable)
         {
-            var item = Instantiate(PlaceablePrefab);
-            item.transform.parent = PlaceablesContainer.transform;
+            var item = Instantiate(PlaceablePrefab, PlaceablesContainer.transform);
 
             // Get Text children's components
             var textsToSet = item.GetComponentsInChildren<TextMeshProUGUI>();
@@ -117,14 +116,16 @@ public class InventoryController : MonoBehaviour
         MainCanvasToHide.GetComponent<CanvasGroup>().blocksRaycasts = false;
         MainCanvasToHide.GetComponent<CanvasGroup>().interactable = false;
 
-        PlacingCanvasToShow.gameObject.SetActive(true);
+        PlacingCanvasToShow.GetComponent<CanvasOpenClose>().OpenCanvas();
 
         if (itemInfo.itemType.ToString().Contains("Tree"))
         {
+            Debug.Log("Clicked for placing a tree.");
             PlacingCanvasToShow.gameObject.GetComponent<Placing>().StartPlacingEnviroment(itemInfo);
         }
         else
         {
+            Debug.Log("Clicked for placing an animal.");
             PlacingCanvasToShow.gameObject.GetComponent<Placing>().StartPlacingAnimal(itemInfo);
         }
     }
@@ -151,10 +152,6 @@ public class InventoryController : MonoBehaviour
         MainCanvasToHide.GetComponent<CanvasGroup>().alpha = 1;
         MainCanvasToHide.GetComponent<CanvasGroup>().blocksRaycasts = true;
         MainCanvasToHide.GetComponent<CanvasGroup>().interactable = true;
-
-        PlacingCanvasToShow.gameObject.SetActive(false);
-
-
     }
 
     private void RemoveItemAndSave(ItemResource gameObject)
@@ -195,8 +192,6 @@ public class InventoryController : MonoBehaviour
         MainCanvasToHide.GetComponent<CanvasGroup>().alpha = 1;
         MainCanvasToHide.GetComponent<CanvasGroup>().blocksRaycasts = true;
         MainCanvasToHide.GetComponent<CanvasGroup>().interactable = true;
-
-        PlacingCanvasToShow.gameObject.SetActive(false);
     }
 
     private void InstantiateItem(ItemResource itemInfo)

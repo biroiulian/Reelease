@@ -24,11 +24,13 @@ public static class Erosion
     public static float[,] sedimentPlacementMask;
     public static float[,] erosionMask;
 
+    private static System.Random rand;
+
     public static double[,] Erode(double[,] heightMap, int mapSize, int seed, ErosionArguments args)
     {
         InitalizeValues(args);
 
-        UnityEngine.Random.InitState(seed);
+        rand = new System.Random(seed);
 
         sedimentPlacementMask = GenerateMatrix(args.radius, 1);
         erosionMask = GenerateMatrix(1, 3f);
@@ -36,8 +38,8 @@ public static class Erosion
         for (int i = 0; i < args.noDroplets; i++)
         {
             // Calculate starting position
-            var xPos = UnityEngine.Random.Range(0, mapSize - 1);
-            var yPos = UnityEngine.Random.Range(0, mapSize - 1);
+            var xPos = rand.Next(0, mapSize - 1);
+            var yPos = rand.Next(0, mapSize - 1);
 
             PlaceDroplet(ref heightMap, xPos, yPos, args);
         }
@@ -83,7 +85,7 @@ public static class Erosion
             speed = speed * heightMap[currentX, currentY] - heightMap[nextX, nextY];
 
             // Calculate erosion
-            double erodedAmmount = Math.Min(capacity - sediment, Math.Abs(heightMap[currentX, currentY] - heightMap[nextX, nextY])) * (UnityEngine.Random.Range(1,11)/10f);
+            double erodedAmmount = Math.Min(capacity - sediment, Math.Abs(heightMap[currentX, currentY] - heightMap[nextX, nextY])) * (rand.Next(1,11)/10f);
             sediment += erodedAmmount;
 
             // Erode
@@ -156,7 +158,7 @@ public static class Erosion
         // it's the first time the droplets start to row, it should not have a predetermined direction. We should assign it a random one.
         if(previousDirection == -1) 
         {
-            previousDirection = UnityEngine.Random.Range(0,8);
+            previousDirection = rand.Next(0,8);
         }
 
         var width = noiseMap.GetLength(0) - 1;

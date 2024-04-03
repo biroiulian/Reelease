@@ -7,7 +7,6 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 
-
 public enum ObjectType { Tree, Grass };
 
 [Serializable]
@@ -22,10 +21,7 @@ public struct PlaceableObject
     public Interval ScaleVariation;
     public float TerrainHeightDiff;
 
-    public float Scale;
-    public int Octaves;
-    public float Persistance;
-    public float Lacunarity;
+    public NoiseArgs NoiseArgs;
 
     public List<Vector3> PlacedPositions;
 
@@ -39,7 +35,6 @@ public class EnviromentController : MonoBehaviour
 {
     [SerializeField]
     public PlaceableObject[] PlaceableObjects;
-    private Vector3[] PlacedObjects;
 
     public bool autoUpdate = true;
     public bool resetPlacement = false;
@@ -47,8 +42,7 @@ public class EnviromentController : MonoBehaviour
     public ResourceDictionary ResourceDictionary;
     public GameObject EnviromentContainer;
 
-    private List<EnviromentItem> placedDecortems = new List<EnviromentItem>();
-    private string filePath = "/mapData.json";
+    private List<EnviromentItem> placedDecorItems = new List<EnviromentItem>();
 
     public void DrawEnviroment()
     {
@@ -72,7 +66,7 @@ public class EnviromentController : MonoBehaviour
         int seedOffset = 1;
         for (int i = 0; i < PlaceableObjects.Length; i++)
         {
-            PlaceableObjects[i].SetSpreadMap(Noise.GenerateBinaryNoiseMap(PlaceableObjects[i].Scale, PlaceableObjects[i].Octaves, PlaceableObjects[i].Persistance, PlaceableObjects[i].Lacunarity, seedOffset));
+            PlaceableObjects[i].SetSpreadMap(Noise.GenerateBinaryNoiseMap(PlaceableObjects[i].NoiseArgs, seedOffset));
             seedOffset++;
         }
     }
@@ -81,7 +75,7 @@ public class EnviromentController : MonoBehaviour
     {
         for (int i = EnviromentContainer.transform.childCount; i > 0; --i)
             DestroyImmediate(EnviromentContainer.transform.GetChild(0).gameObject);
-        placedDecortems.Clear();
+        placedDecorItems.Clear();
     }
 
     public void LoadEnviroment()
@@ -92,13 +86,13 @@ public class EnviromentController : MonoBehaviour
     public void LoadEnviroment(EnviromentData envData)
     {
         Debug.Log("Drawing saved enviroment.");
-        placedDecortems = envData.items.ToList();
+        placedDecorItems = envData.items.ToList();
         DrawSavedObjects();
     }
 
     private void DrawSavedObjects()
     {
-        foreach (EnviromentItem env in placedDecortems)
+        foreach (EnviromentItem env in placedDecorItems)
         {
             var instance = Instantiate(ResourceDictionary.GetItemResource(env.itemType).placeablePrefab, EnviromentContainer.transform);
             instance.transform.position = new Vector3(env.position.x, env.position.y, env.position.z);
@@ -133,7 +127,7 @@ public class EnviromentController : MonoBehaviour
                     randScaleFactor * instance.transform.localScale.z);
 
                 // Save locally
-                placedDecortems.Add(new EnviromentItem() 
+                placedDecorItems.Add(new EnviromentItem() 
                 { 
                     itemType = itemTypeToInstantiate, 
                     position = new Coords3D() { x = instance.transform.position.x, y = instance.transform.position.y, z = instance.transform.position.z }, 
@@ -143,8 +137,6 @@ public class EnviromentController : MonoBehaviour
             }
         }
     }
-
-
 
     private void GenerateObjPositions(ref PlaceableObject obj)
     {
@@ -247,16 +239,24 @@ public class EnviromentController : MonoBehaviour
         return Vector3.zero;
     }
 
+    /// <summary>
+    /// This returns information about enviroment items that are currently on the map, 
+    /// like grass, in a json-friendly format.
+    /// </summary>
     public EnviromentData GetEnviromentData()
     {
-        if (placedDecortems is null || placedDecortems.Count == 0)
+        if (placedDecorItems is null || placedDecorItems.Count == 0)
         {
             Debug.LogWarning("Enviroment items are not initialized and are being requested.");
         }
 
-        return new EnviromentData() { items = placedDecortems.ToArray() };
+        return new EnviromentData() { items = placedDecorItems.ToArray() };
     }
 
+    /// <summary>
+    /// My messy begginer way of trying to get the slope of the surface. 
+    /// This should be substituted with a method that uses ray casting. 
+    /// </summary>
     private bool HasAcceptedHeightDifference(Vector3 v, int index, Vector3[] verts, float heightDifference)
     {
         var size = (int)MathF.Sqrt(verts.Count());
@@ -281,6 +281,7 @@ public class EnviromentController : MonoBehaviour
     }
 }
 
+// Structs used to store information in a json format.
 public struct EnviromentData
 {
     public EnviromentItem[] items;

@@ -19,27 +19,23 @@ public class Placing : MonoBehaviour
 
     private bool isAnimal = false;
     private bool canPlace = false;
-    private void Awake()
-    {
-        var buttons = GetComponentsInChildren<Button>();
-        buttons[0].onClick.AddListener(CancelPlacingCommand);
-        buttons[1].onClick.AddListener(ApplyPlacingCommand);
-    }
 
-    private void CancelPlacingCommand()
+    public void CancelPlacingCommand()
     {
         Destroy(PlaceableInstance);
         isTryingToPlace = false;
     }
 
-    private void ApplyPlacingCommand()
+    public void ApplyPlacingCommand()
     {
         // Applied
-        Debug.Log("Applied placing");
+        Debug.Log("Start apply placing.");
         if (isAnimal)
         {
+            Debug.Log("Is animal.");
             if (canPlace)
             {
+                Debug.Log("Can place.");
                 PlaceableInstance.GetComponent<Animator>().enabled = true;
                 if (PlaceableInstance.GetComponent<AnimalMovement>() is not null)
                 {
@@ -53,15 +49,16 @@ public class Placing : MonoBehaviour
                 isTryingToPlace = false;
                 PlaceableInstance.GetComponentInChildren<SkinnedMeshRenderer>().materials = originalMaterials;
                 PlaceableInstance.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                Debug.Log("Applied placing.");
             }
             else
             {
                 Destroy(PlaceableInstance);
+                Debug.Log("Couldn't apply placing.");
             }
         }
         else
         {
-            isTryingToPlace = false;
             if (canPlace)
             {
                 PlaceableInstance.GetComponentInChildren<MeshRenderer>().materials = originalMaterials;
@@ -70,6 +67,8 @@ public class Placing : MonoBehaviour
             {
                 Destroy(PlaceableInstance);
             }
+
+            isTryingToPlace = false;
         }
         return;
     }
@@ -90,11 +89,11 @@ public class Placing : MonoBehaviour
         // Disable movement script (check which type)
         if (PlaceableInstance.GetComponent<AnimalMovement>() is not null)
         {
-            PlaceableInstance.GetComponent<AnimalMovement>().enabled = true;
+            PlaceableInstance.GetComponent<AnimalMovement>().enabled = false;
         }
         else
         {
-            PlaceableInstance.GetComponent<SimpleAnimalMovement>().enabled = true;
+            PlaceableInstance.GetComponent<SimpleAnimalMovement>().enabled = false;
         }
 
         // Put the placeable object under the desired parent
@@ -185,12 +184,13 @@ public class Placing : MonoBehaviour
                 {
                     if (Physics.Raycast(ray, out RaycastHit hitInfo))
                     {
+                        Debug.Log("normal x: " + hitInfo.normal.x);
                         if (isAnimal)
                         {
                             PlaceableInstance.transform.LookAt(Camera.transform);
                             PlaceableInstance.transform.rotation = new Quaternion(0, PlaceableInstance.transform.rotation.y, 0, PlaceableInstance.transform.rotation.w);
                         }
-                        if (hitInfo.normal.x < 0.15f)
+                        if (-0.15f < hitInfo.normal.x && hitInfo.normal.x < 0.15f)
                         {
                             lastPosition = hitInfo.point;
                             PlaceableInstance.transform.position = hitInfo.point;
@@ -202,8 +202,8 @@ public class Placing : MonoBehaviour
                         {
                             lastPosition = hitInfo.point;
                             PlaceableInstance.transform.position = hitInfo.point;
-                            if (isAnimal) PlaceableInstance.GetComponentInChildren<SkinnedMeshRenderer>().materials = validMaterials;
-                            else PlaceableInstance.GetComponentInChildren<MeshRenderer>().materials = validMaterials;
+                            if (isAnimal) PlaceableInstance.GetComponentInChildren<SkinnedMeshRenderer>().materials = invalidMaterials;
+                            else PlaceableInstance.GetComponentInChildren<MeshRenderer>().materials = invalidMaterials;
                             canPlace = false;
                         }
                     }

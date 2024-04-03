@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 public class UserPlacedEnviromentController : MonoBehaviour
 {
-    private string filePath = "/userEnviroment";
+    private string filePath = "/userEnviroment.json";
 
     public ResourceDictionary ResourceDictionary;
 
@@ -21,6 +22,12 @@ public class UserPlacedEnviromentController : MonoBehaviour
             LoadEnviroment();
         }
     }
+
+    private void OnApplicationQuit()
+    {
+        SaveEnviroment();
+    }
+
 
     public void LoadEnviroment()
     {
