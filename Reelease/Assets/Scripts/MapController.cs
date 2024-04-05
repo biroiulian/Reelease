@@ -110,28 +110,6 @@ public class MapController : MonoBehaviour
         display.Draw3D(MeshGenerator.GenerateTerrainMesh(result.noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
     }
 
-    public void GenerateMap(bool useErosion = true, bool useEnviroment = true)
-    {
-        hydraulicErosion = useErosion;
-        updateEnviroment = useEnviroment;
-        MapDisplay display;
-
-        noiseMap = Noise.GenerateNoiseMap(mapSize, mapSize, noiseArgs, noiseType, domainWarpStrength, XYwarp, XYwarp / 2, falloffArgs, erosionArgs, waterLevel, sinkStrength, useErosion).noiseMap;
-
-        display = FindObjectOfType<MapDisplay>();
-
-        display.Draw3D(MeshGenerator.GenerateTerrainMesh(noiseMap, screenWidth, screenHeight, Xposition, Zposition, Yposition, heightMultiplicator));
-
-        if (updateEnviroment)
-        {
-            enviromentController.GenerateEnviroment();
-        }
-        else
-        {
-            enviromentController.DeleteEnviroment();
-        }
-    }
-
     public void SaveMap()
     {
         Debug.Log("Attempting save of the map.");

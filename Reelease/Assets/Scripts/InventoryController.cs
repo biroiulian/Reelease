@@ -156,6 +156,7 @@ public class InventoryController : MonoBehaviour
 
     private void RemoveItemAndSave(ItemResource gameObject)
     {
+
         // Find item position
         var count = 0;
         foreach (var item in inventory.items)
@@ -167,20 +168,23 @@ public class InventoryController : MonoBehaviour
             count++;
         }
 
-        // Create a new array with one less element
-        string[] newArray = new string[inventory.items.Length - 1];
+        // If we have at least one element.
+        if (inventory.items.Length >= 1)
+        {
+            // Create a new array with one less element
+            string[] newArray = new string[inventory.items.Length - 1];
 
-        // Copy elements before the position
-        Array.Copy(inventory.items, 0, newArray, 0, count);
+            // Copy elements before the position
+            Array.Copy(inventory.items, 0, newArray, 0, count);
 
-        // Copy elements after the position
-        Array.Copy(inventory.items, count + 1, newArray, count, inventory.items.Length - count - 1);
+            // Copy elements after the position
+            Array.Copy(inventory.items, count + 1, newArray, count, inventory.items.Length - count - 1);
 
-        // Update the original array reference
-        inventory.items = newArray;
+            // Update the original array reference
+            inventory.items = newArray;
 
-        JsonDataService.SaveData(filePath, inventory);
-
+            JsonDataService.SaveData(filePath, inventory);
+        }
     }
 
     private void CancelPlacingCommand()
@@ -198,8 +202,7 @@ public class InventoryController : MonoBehaviour
     {
         if (itemInfo.itemGeneralType == ItemGeneralType.Placeable)
         {
-            var item = Instantiate(PlaceablePrefab);
-            item.transform.parent = PlaceablesContainer.transform;
+            var item = Instantiate(PlaceablePrefab, PlaceablesContainer.transform);
 
             // Get Text children's components
             var textsToSet = item.GetComponentsInChildren<TextMeshProUGUI>();
